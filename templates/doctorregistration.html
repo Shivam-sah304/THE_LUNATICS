@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Doctor Registration Form</title>
-  <link rel="stylesheet" href="">
+  <link rel="stylesheet" href="..\static\doctorregistration.css">
 </head>
 <body>
 
@@ -99,12 +99,116 @@
         <div class="subtitle" style="margin-top: 20px; margin-left:90px">
 
               <!-- add reference here -->
-        <span style="color:grey">Already have an account? </span><a href="" style="color: #3182ce; text-decoration: none; font-weight: bold; ">Login here</a>
+        <span style="color:grey">Already have an account? </span><a href="kgsadvjhvs" style="color: #3182ce; text-decoration: none; font-weight: bold; ">Login here</a>
     </div>
     
     </div>
   </form>
+<script>
+const form = document.getElementById('doctorRegistrationForm');
+const eduSelect = document.getElementById('education');
+const specGroup = document.getElementById('spec-group');
+const specInput = document.getElementById('specialization');
+const phoneInput = document.getElementById('phone');
 
+// 1. Handle Conditional Specialization Box
+eduSelect.addEventListener('change', function() {
+    if (this.value === 'postgraduate') {
+        specGroup.style.display = 'block';
+        specInput.setAttribute('required', 'true');
+    } else {
+        specGroup.style.display = 'none';
+        specInput.removeAttribute('required');
+        specInput.value = '';
+        specInput.classList.remove('not-empty');
+    }
+    this.classList.add('not-empty');
+});
+
+// 2. Prevent non-numeric characters in Phone field immediately
+phoneInput.addEventListener('keypress', (e) => {
+    if (!/[0-9]/.test(e.key)) {
+        e.preventDefault();
+    }
+});
+
+// 3. Handle Label Floating
+const inputs = document.querySelectorAll('input, select, textarea');
+inputs.forEach((input) => {
+    input.addEventListener('input', () => {
+        if (input.value !== '') {
+            input.classList.add('not-empty');
+        } else {
+            input.classList.remove('not-empty');
+        }
+    });
+});
+
+// 4. Validation and Submission Logic
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let isFormValid = true;
+
+    // Strict validation patterns
+    const patterns = {
+        fullname: /^[a-zA-Z\s]{2,50}$/,
+        // Strict Email: requires something@something.extension
+        email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        // Phone: Digits only, 7 to 15 characters
+        phone: /^[0-9]{7,15}$/
+    };
+
+    inputs.forEach((input) => {
+        // Skip hidden fields only
+        if (input.parentElement.style.display === 'none') return;
+
+        const errorMsg = input.parentElement.querySelector('.error');
+        let isValid = true;
+        let message = "This field is required";
+
+        // A. COMPULSORY CHECK: Check if empty or only whitespace
+        if (!input.value || !input.value.trim()) {
+            isValid = false;
+        } 
+        // B. PATTERN CHECKS
+        else if (input.name === 'fullname' && !patterns.fullname.test(input.value)) {
+            isValid = false;
+            message = "Letters only (no numbers)";
+        }
+        else if (input.type === 'email' && !patterns.email.test(input.value)) {
+            isValid = false;
+            message = "Enter a valid email (e.g., name@mail.com)";
+        }
+        else if (input.name === 'phone' && !patterns.phone.test(input.value)) {
+            isValid = false;
+            message = "Enter a valid 7-15 digit phone number";
+        }
+
+        // Apply visual error states
+        if (!isValid) {
+            isFormValid = false;
+            input.classList.add('invalid');
+            if (errorMsg) {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+            }
+        } else {
+            input.classList.remove('invalid');
+            if (errorMsg) {
+                errorMsg.style.display = 'none';
+            }
+        }
+    });
+
+    if (isFormValid) {
+        form.classList.add('zoom-submit');
+        setTimeout(() => {
+            window.location.href = "validation.html";
+        }, 500);
+    }
+});</script>
+
+  
 
 </body>
 </html>
