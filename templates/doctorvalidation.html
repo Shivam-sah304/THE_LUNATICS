@@ -8,35 +8,35 @@
 </head>
 <body>  
 
-<form class="form-card" id="verificationForm" novalidate>
-    <h2>Validation Section</h2>
-    <p class="subtitle">Upload high-resolution documents for identity and license verification.</p>
+    <form class="form-card" id="verificationForm" action="{{ url_for('routes.doctorvalidation') }}" method="POST" enctype="multipart/form-data" novalidate>
+        <h2>Validation Section</h2>
+        <p class="subtitle">Upload high-resolution documents for identity and license verification.</p>
 
-    <div class="section">
-        <h3>Identity Verification</h3>
-        
-        <div class="form-group file-group">
-            <input type="file" name="doctor_photo" id="doctor_photo" accept="image/*" required>
-            <label for="doctor_photo" class="fixed-label">Professional Photo *</label>
-            <small class="error">Professional photo is required</small>
-        </div>
-    </div>
-
-    <div class="section">
-        <h3>Professional License</h3>
-
-        <div class="form-group">
-            <input type="text" name="nmc_number" id="nmc_number" required>
-            <label for="nmc_number">NMC Registration Number*</label>
-            <small class="error">Enter a valid alphanumeric license number</small>
+        <div class="section">
+            <h3>Identity Verification</h3>
+            
+            <div class="form-group file-group">
+                <input type="file" name="doctor_photo" id="doctor_photo" accept="*/*" required>
+                <label for="doctor_photo" class="fixed-label">Professional Photo *</label>
+                <small class="error">Professional photo is required</small>
+            </div>
         </div>
         
-        <div class="form-group file-group">
-            <input type="file" name="nmc_license" id="nmc_license" accept="image/*" required>
-            <label for="nmc_license" class="fixed-label">NMC License Photo*</label>
-            <small class="error">License photo is required</small>
+        <div class="section">
+            <h3>Professional License</h3>
+
+            <div class="form-group">
+                <input type="text" name="nmc_number" id="nmc_number" required>
+                <label for="nmc_number">NMC Registration Number*</label>
+                <small class="error">Enter a valid alphanumeric license number</small>
+            </div>
+            
+            <!-- <div class="form-group file-group">
+                <input type="file" name="nmc_license" id="nmc_license" accept="*/*" required>
+                <label for="nmc_license" class="fixed-label">NMC License Photo*</label>
+                <small class="error">License photo is required</small>
+            </div> -->
         </div>
-    </div>
 
     <button type="submit">Submit Personal Details</button>
 
@@ -48,23 +48,20 @@
     </div>
 </form>
 
-<script>
+   <script>
 const form = document.getElementById('verificationForm');
 const inputs = document.querySelectorAll('input');
 
+// Floating label for text inputs
 inputs.forEach(input => {
     if (input.type !== 'file') {
         input.addEventListener('input', () => {
-            input.value !== '' 
-                ? input.classList.add('not-empty') 
-                : input.classList.remove('not-empty');
+            input.value !== '' ? input.classList.add('not-empty') : input.classList.remove('not-empty');
         });
     }
 });
 
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
+form.addEventListener('submit', (e) => {
     let isValidForm = true;
     const nmcPattern = /^[a-zA-Z0-9\/\-]+$/;
 
@@ -72,55 +69,30 @@ form.addEventListener('submit', async (e) => {
         const errorMsg = input.parentElement.querySelector('.error');
         let isValid = true;
 
-        if (input.type === "file") {
-            if (!input.files.length) isValid = false;
-        } else {
-            if (!input.value.trim()) isValid = false;
-            else if (input.name === 'nmc_number' && !nmcPattern.test(input.value))
-                isValid = false;
+        if (!input.value.trim()) {
+            isValid = false;
+            errorMsg.textContent = "This field is required";
+        } else if (input.name === 'nmc_number' && !nmcPattern.test(input.value)) {
+            isValid = false;
+            errorMsg.textContent = "Use letters, numbers, / or - only";
         }
 
         if (!isValid) {
             isValidForm = false;
             input.classList.add('invalid');
-            if (errorMsg) errorMsg.style.display = 'block';
+            errorMsg.style.display = 'block';
         } else {
             input.classList.remove('invalid');
-            if (errorMsg) errorMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
         }
     });
 
-    if (!isValidForm) return;
-
-    form.classList.add('zoom-submit');
-
-    setTimeout(async () => {
-        try {
-            const formData = new FormData(form);
-
-            const response = await fetch('/drvalidation', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                window.location.href = '/drlogin';
-            } else {
-                alert(data.message || "Validation failed");
-                form.classList.remove('zoom-submit');
-            }
-
-        } catch (error) {
-            console.error(error);
-            alert("Server error");
-            form.classList.remove('zoom-submit');
-        }
-
-    }, 450);
+    if (!isValidForm) {
+        // Prevent submission only if invalid
+        e.preventDefault();
+    }
+    // If valid → do nothing, let Flask handle the POST and redirect
 });
 </script>
-
 </body>
 </html>
