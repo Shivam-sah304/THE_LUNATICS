@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Emergency Contact Registration</title>
+    <link rel="stylesheet" href="..\static\patientcontact.css">
+</head>
+<body>
+
+
+    
+
+    <!-- add reference -->
+  <form class="form-card" id="contactRegistrationForm" action=" " method="POST" novalidate>
+    <h2>Emergency Contacts</h2>
+
+    <div class="section">
+      <h3>Contact Info of Your Closed One</h3>
+      
+      <div class="contact-pair">
+        <div class="form-group">
+          <input type="text" name="contact1_name" id="contact1_name" required />
+          <label for="contact1_name">Closed Person 1 Name*</label>
+          <small class="error">Name is required</small>
+        </div>
+        
+        <div class="extra-fields hidden-field" id="extra1">
+            <div class="form-group">
+              <input type="tel" name="contact1_phone" id="contact1_phone" required />
+              <label for="contact1_phone">Contact Number (Person 1)*</label>
+              <small class="error">Phone number is required</small>
+            </div>
+            <div class="form-group">
+              <input type="text" name="contact1_relation" id="contact1_relation" required />
+              <label for="contact1_relation">Relation (Person 1)*</label>
+              <small class="error">Relation is required</small>
+            </div>
+        </div>
+      </div>
+
+      <div class="contact-pair">
+        <div class="form-group">
+          <input type="text" name="contact2_name" id="contact2_name" />
+          <label for="contact2_name">Closed Person 2 Name</label>
+        </div>
+        
+        <div class="extra-fields hidden-field">
+            <div class="form-group">
+              <input type="tel" name="contact2_phone" id="contact2_phone" />
+              <label for="contact2_phone">Contact Number (Person 2)</label>
+            </div>
+            <div class="form-group">
+              <input type="text" name="contact2_relation" id="contact2_relation" />
+              <label for="contact2_relation">Relation (Person 2)</label>
+            </div>
+        </div>
+      </div>
+
+      <div class="contact-pair">
+        <div class="form-group">
+          <input type="text" name="contact3_name" id="contact3_name" />
+          <label for="contact3_name">Closed Person 3 Name</label>
+        </div>
+        
+        <div class="extra-fields hidden-field">
+            <div class="form-group">
+              <input type="tel" name="contact3_phone" id="contact3_phone" />
+              <label for="contact3_phone">Contact Number (Person 3)</label>
+            </div>
+            <div class="form-group">
+              <input type="text" name="contact3_relation" id="contact3_relation" />
+              <label for="contact3_relation">Relation (Person 3)</label>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <button type="submit"><a href="">Save Contacts</a></button>
+
+     <div class="subtitle" style="margin-top: 20px; margin-left:100px">
+ 
+ 
+        <!-- add reference -->
+        Already have an account? <a href="" style="color: #3182ce; text-decoration: none; font-weight: bold;">Login here</a>
+    </div>
+  </form>
+
+<script>
+    const form = document.getElementById('contactRegistrationForm');
+    const allInputs = document.querySelectorAll('input');
+
+    allInputs.forEach(input => {
+        // 1. Float label logic
+        input.addEventListener('input', () => {
+            input.value !== '' ? input.classList.add('not-empty') : input.classList.remove('not-empty');
+            
+            // Phone restriction
+            if (input.type === 'tel') {
+                input.value = input.value.replace(/[^0-9+]/g, '');
+            }
+        });
+
+        // 2. Expand extra fields on focus
+        input.addEventListener('focus', () => {
+            const pair = input.closest('.contact-pair');
+            const hiddenSection = pair.querySelector('.hidden-field');
+            if (hiddenSection) {
+                hiddenSection.classList.add('show-field');
+            }
+        });
+    });
+
+    // 3. Strict Validation Logic
+    form.addEventListener('submit', (e) => {
+        let isFormValid = true;
+
+        // Fields for Contact 1 (The Compulsory Ones)
+        const compulsoryFields = [
+            'contact1_name',
+            'contact1_phone',
+            'contact1_relation'
+        ];
+
+        compulsoryFields.forEach(id => {
+            const field = document.getElementById(id);
+            const errorMsg = field.parentElement.querySelector('.error');
+            
+            if (!field.value.trim()) {
+                isFormValid = false;
+                field.classList.add('invalid');
+                if (errorMsg) errorMsg.style.display = 'block';
+            } else {
+                field.classList.remove('invalid');
+                if (errorMsg) errorMsg.style.display = 'none';
+            }
+        });
+
+        if (!isFormValid) {
+            e.preventDefault();
+        } else {
+            e.preventDefault();
+            form.classList.add('zoom-submit');
+            setTimeout(() => { form.submit(); }, 500);
+        }
+    });
+</script>
+</body>
+</html>
