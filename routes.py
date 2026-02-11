@@ -6,7 +6,7 @@ import os
 
 
 
-from models import db, Doctor,Patient
+from models import db, Doctor
 
 routes = Blueprint("routes", __name__)
 @routes.route("/")
