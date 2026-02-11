@@ -14,6 +14,7 @@ def login():
     user_id = request.json.get('phone')
     password = request.json.get('password')
 
+    user = Doctor.query.filter_by(phone=phone).first()
     # Dummy check – replace with DB check
     if user_id == "samir" and password == "password123":
         access_token = create_access_token(identity=user_id)
