@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Verification | Document Upload</title>
+    <link rel="stylesheet" href="..\static\doctorvalidation.css">
+</head>
+<body>
+
+    <form class="form-card" id="verificationForm" novalidate>
+        <h2>Validation Section</h2>
+        <p class="subtitle">Upload high-resolution documents for identity and license verification.</p>
+
+        <div class="section">
+            <h3>Identity Verification</h3>
+            
+            <div class="form-group file-group">
+                <input type="file" name="doctor_photo" id="doctor_photo" accept="*/*" required>
+                <label for="doctor_photo" class="fixed-label">Professional Photo *</label>
+                <small class="error">Professional photo is required</small>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>Professional License</h3>
+
+            <div class="form-group">
+                <input type="text" name="nmc_number" id="nmc_number" required>
+                <label for="nmc_number">NMC Registration Number*</label>
+                <small class="error">Enter a valid alphanumeric license number</small>
+            </div>
+            
+            <div class="form-group file-group">
+                <input type="file" name="nmc_license" id="nmc_license" accept="*/*" required>
+                <label for="nmc_license" class="fixed-label">NMC License Photo*</label>
+                <small class="error">License photo is required</small>
+            </div>
+        </div>
+
+
+        <!-- add reference here -->
+       <button type="submit"><a href="" style="text-decoration: none;color: white;">Submit Personal Details</button>
+
+        </div>
+       <div class="subtitle" style="margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 5px;">
+    <span style="color: grey;">Already have an account?</span>
+
+    <!-- add reference here -->
+    <a href="" style="color: #3182ce; text-decoration: none; font-weight: bold;">Login here</a>
+</div>
+    </form>
+
+   
+</body
+</html>
+
+
+
