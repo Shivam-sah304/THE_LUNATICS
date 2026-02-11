@@ -9,7 +9,7 @@ class Doctor(db.Model):
     address=db.Column(db.String(50),nullable=False)
     phone=db.Column(db.String(20),nullable=False)
     degree=db.Column(db.String(30),nullable=False)
-    specilization=db.Column(db.String(40),nullable=False)
+    # specilization=db.Column(db.String(40),nullable=False)
     desc=db.Column(db.String(400),nullable=False)
     dob=db.Column(db.Date,nullable=False)
     experience=db.Column(db.Integer,nullable=False)

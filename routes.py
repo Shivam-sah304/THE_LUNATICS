@@ -24,5 +24,12 @@ def doctorregistration():
         desc=request.form["about"]
         degree=request.form["education"]
         experience=request.form["experience"]
-        
+
+        user=Doctor(name=name,email=email,phone=phone,address=address,dob=dob,desc=desc,degree=degree,experience=experience)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('routes.home'))
+
+    return render_template("doctorregistration.html")
+
 
