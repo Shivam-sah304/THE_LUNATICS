@@ -143,19 +143,24 @@ function sendAll() {
 
   const text = textInput.value.trim();
   const file = fileInput.files[0];
-
   let sentSomething = false;
 
   // 1️⃣ Send voice if recorded
   if (audioChunks.length > 0) {
     const blob = new Blob(audioChunks, { type: "audio/webm" });
-    const reader = new FileReader();
-    reader.onload = () => {
-      ws.send(JSON.stringify({ type:"binary", to: TARGET_ID }));
-      ws.send(reader.result);
-    };
-    reader.readAsArrayBuffer(blob);
-    audioChunks = [];
+    audioChunks = []; // clear after sending
+
+    blob.arrayBuffer().then(buffer => {
+      // Send metadata first
+      ws.send(JSON.stringify({
+        type: "file",
+        to: TARGET_ID,
+        fileType: "audio/webm",
+        fileName: "voice_message.webm"
+      }));
+      // Send binary
+      ws.send(buffer);
+    });
 
     const li = document.createElement("li");
     li.textContent = "You sent a voice message";
@@ -167,34 +172,38 @@ function sendAll() {
   if (file) {
     const reader = new FileReader();
     reader.onload = () => {
-      ws.send(JSON.stringify({ type:"binary", to: TARGET_ID }));
+      // First send metadata
+      ws.send(JSON.stringify({
+        type: "file",
+        to: TARGET_ID,
+        fileType: file.type,
+        fileName: file.name
+      }));
+      // Then send binary
       ws.send(reader.result);
     };
-    reader.onloadend = () => {
-      const li = document.createElement("li");
-      li.textContent = `You sent a file: `;
-      const url = URL.createObjectURL(file);
-
-      if(file.type.startsWith("image")){
-        const img = document.createElement("img"); img.src=url; img.style.maxWidth="200px"; li.appendChild(img);
-      }
-      else if(file.type.startsWith("video")){
-        const video = document.createElement("video"); video.src=url; video.controls=true; video.style.maxWidth="300px"; li.appendChild(video);
-      }
-      else if(file.type==="application/pdf"){
-        const a = document.createElement("a"); a.href=url; a.target="_blank"; a.textContent="View PDF"; li.appendChild(a);
-      }
-
-      document.getElementById("chat").appendChild(li);
-    };
     reader.readAsArrayBuffer(file);
+
+    const li = document.createElement("li");
+    li.textContent = `You sent a file: `;
+    const url = URL.createObjectURL(file);
+
+    if (file.type.startsWith("image")) {
+      const img = document.createElement("img"); img.src = url; img.style.maxWidth = "200px"; li.appendChild(img);
+    } else if (file.type.startsWith("video")) {
+      const video = document.createElement("video"); video.src = url; video.controls = true; video.style.maxWidth = "300px"; li.appendChild(video);
+    } else if (file.type === "application/pdf") {
+      const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.textContent = "View PDF"; li.appendChild(a);
+    }
+
+    document.getElementById("chat").appendChild(li);
     fileInput.value = "";
     sentSomething = true;
   }
 
   // 3️⃣ Send text if present
   if (text) {
-    ws.send(JSON.stringify({ type:"send", to: TARGET_ID, message: text }));
+    ws.send(JSON.stringify({ type: "send", to: TARGET_ID, message: text }));
 
     const li = document.createElement("li");
     li.textContent = "You: " + text;
@@ -207,6 +216,7 @@ function sendAll() {
     alert("Please type a message, select a file, or record a voice message.");
   }
 }
+
 
 /* ============================= */
 /* WEBRTC (Video Call) */
