@@ -8,7 +8,7 @@
 </head>
 <body>
 
-  <form class="form-card" id="loginForm" action="/drprofile" method="POST" novalidate>
+  <form class="form-card" id="loginForm" action="{{ url_for('routes.doctorlogin')}}" method="POST" novalidate>
     <h2>Doctor Login</h2>
     
     <div class="message-container">

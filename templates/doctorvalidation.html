@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <form class="form-card" id="verificationForm" novalidate>
+    <form class="form-card" id="verificationForm" action="{{ url_for('routes.doctorvalidation')}}" method="POST" novalidate>
         <h2>Validation Section</h2>
         <p class="subtitle">Upload high-resolution documents for identity and license verification.</p>
 
@@ -40,14 +40,14 @@
 
 
         <!-- add reference here -->
-       <button type="submit"><a href="" style="text-decoration: none;color: white;">Submit Personal Details</button>
+       <button type="submit" style="text-decoration: none;color: white;">Submit Personal Details</button>
 
         </div>
        <div class="subtitle" style="margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 5px;">
     <span style="color: grey;">Already have an account?</span>
 
     <!-- add reference here -->
-    <a href="" style="color: #3182ce; text-decoration: none; font-weight: bold;">Login here</a>
+    <a href="{{ url_for('routes.doctorlogin') }}" style="color: #3182ce; text-decoration: none; font-weight: bold;">Login here</a>
 </div>
     </form>
 
