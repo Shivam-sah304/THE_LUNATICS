@@ -9,8 +9,8 @@ class Doctor(db.Model):
     address=db.Column(db.String(50),nullable=False)
     phone=db.Column(db.String(20),nullable=False)
     degree=db.Column(db.String(30),nullable=False)
-    # specilization=db.Column(db.String(40),nullable=False)
-    desc=db.Column(db.String(400),nullable=False)
+    specialization=db.Column(db.String(40),nullable=True)
+    desc=db.Column(db.String(400),nullable=True)
     dob=db.Column(db.Date,nullable=False)
     experience=db.Column(db.Integer,nullable=False)
 
@@ -19,6 +19,5 @@ class Doctor(db.Model):
     # nmc_number=db.Column(db.String(50),nullable=False)
     # nmc_photo=db.column(db.string(100),nullable=False)
 
-    def __init__(self) ->str:
-        return f"{self.id}-{self.name}"
+    
     
