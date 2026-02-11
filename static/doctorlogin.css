@@ -1,0 +1,162 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden; /* Keeps zoom clean */
+}
+
+/* START animation: Form zooms back into place */
+.form-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    animation: formEnter 0.5s ease-out forwards;
+    text-align: center;
+}
+
+@keyframes formEnter {
+    0% {
+        transform: scale(1.8) translateY(-30px);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* END animation: Form zooms into user's face */
+.form-card.zoom-submit {
+    animation: formExit 0.45s ease-in forwards;
+}
+
+@keyframes formExit {
+    0% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.8) translateY(-30px);
+        opacity: 0;
+    }
+}
+
+h2 {
+    margin: 0 0 10px 0;
+    color: #1a365d;
+    font-size: 28px;
+}
+
+/* Styled Message Block */
+.message-container {
+    min-height: 25px;
+    margin-bottom: 15px;
+}
+
+.status-message {
+ text-align: center;
+background: linear-gradient(135deg, #1e73ff, #6fd0ff);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+font-weight: bold;
+font-size: 14px;
+
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+input {
+    width: 100%;
+    padding: 14px 15px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+label {
+    position: absolute;
+    top: 14px;
+    left: 15px;
+    color: #a0aec0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+/* Floating Label Logic */
+input:focus + label,
+input.not-empty + label {
+    top: -12px;
+    left: 10px;
+    font-size: 12px;
+    color: #3182ce;
+    background: #fff;
+    padding: 0 8px;
+    font-weight: 700;
+}
+
+input:focus {
+    border-color: #3182ce;
+    box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.1);
+}
+
+input.invalid {
+    border-color: #e53e3e;
+    background-color: #fff5f5;
+}
+
+small.error {
+    color: #e53e3e;
+    font-size: 11px;
+    margin-top: 5px;
+    display: none;
+}
+
+button {
+    width: 100%;
+    padding: 16px;
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+}
+
+button:hover {
+    background: #2b6cb0;
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #718096;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #718096;
+}
