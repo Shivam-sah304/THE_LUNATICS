@@ -1,0 +1,157 @@
+/* General Reset */
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f0f2f5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+/* Form Container Card */
+.form-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  padding: 35px;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.6s ease-out; /* Entry Animation */
+}
+
+/* Entry Animation */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+  margin: 0 0 10px 0;
+  color: #1a365d;
+  text-align: center;
+  font-size: 26px;
+}
+
+/* Section Headers (Personal Info, etc.) */
+.section h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #718096;
+  letter-spacing: 1.5px;
+  margin: 25px 0 15px 0;
+  border-bottom: 2px solid #edf2f7;
+  padding-bottom: 5px;
+}
+
+.form-group {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+/* Inputs & Textarea */
+input, textarea {
+  width: 100%;
+  padding: 14px 15px;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  font-size: 15px;
+  background: #fff;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Floating Label Base */
+label {
+  position: absolute;
+  top: 14px;
+  left: 15px;
+  color: #a0aec0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+/* Floating Label Logic: Moves label up when focused or not empty */
+input:focus + label,
+textarea:focus + label,
+input.not-empty + label,
+textarea.not-empty + label {
+  top: -12px;
+  left: 10px;
+  font-size: 12px;
+  color: #3182ce;
+  background: #fff;
+  padding: 0 8px;
+  font-weight: 700;
+  z-index: 10;
+}
+
+input:focus, textarea:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.1);
+}
+
+/* Error / Invalid States */
+input.invalid, textarea.invalid {
+  border-color: #e53e3e;
+  background-color: #fff5f5;
+}
+
+small.error {
+  color: #e53e3e;
+  font-size: 11px;
+  margin-top: 6px;
+  display: none;
+  font-weight: 500;
+}
+
+/* Submit Button */
+button {
+  width: 100%;
+  padding: 16px;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #2b6cb0;
+}
+
+/* Zoom Submission Animation */
+.form-card.zoom-submit {
+  animation: pureZoom 0.5s ease-in forwards;
+}
+
+@keyframes pureZoom {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+
+.subtitle {
+    font-size: 13px;
+    color: #718096;
+}

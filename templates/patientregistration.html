@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Patient Registration</title>
+    <link rel="stylesheet" href="..\static\patientregistration.css">
+</head>
+<body>
+
+    <!-- add reference here -->
+
+
+
+
+  <form class="form-card" id="patientRegistrationForm" action="" method="POST" novalidate>
+    <h2>Patient Registration</h2>
+
+
+
+
+    <div class="section">
+      <h3>Personal Information</h3>
+      
+      <div class="form-group">
+        <input type="text" name="full_name" id="full_name" required />
+        <label for="full_name">Full Name*</label>
+        <small class="error">Name should only contain letters</small>
+      </div>
+
+      <div class="form-group">
+        <input type="tel" name="phone" id="phone" required />
+        <label for="phone">Phone Number*</label>
+        <small class="error">Enter a valid 10-digit phone number</small>
+      </div>
+
+      <div class="form-group">
+        <input type="email" name="email" id="email" required />
+        <label for="email">Email Address*</label>
+        <small class="error">Enter a valid email (e.g. name@mail.com)</small>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Medical Details</h3>
+      <div class="form-group">
+        <textarea name="problem" id="problem" rows="2"></textarea>
+        <label for="problem">Problem You Are Suffering From (Optional)</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Address Details</h3>
+      <div class="form-group">
+        <input type="text" name="permanent_address" id="permanent_address" required />
+        <label for="permanent_address">Permanent Address*</label>
+        <small class="error">This field is required</small>
+      </div>
+
+      <div class="form-group">
+        <input type="text" name="temporary_address" id="temporary_address" required />
+        <label for="temporary_address">Temporary Address*</label>
+        <small class="error">This field is required</small>
+      </div>
+    </div>
+
+
+
+    <!-- add refernce here -->
+    <button type="submit">Register</button>
+
+     <div class="subtitle" style="margin-top: 20px; margin-left:100px">
+        Already have an account? <a href="" style="color: #3182ce; text-decoration: none; font-weight: bold;">Login here</a>
+  </form>
+
+<script>
+    const form = document.getElementById('patientRegistrationForm');
+    const inputs = document.querySelectorAll('input, textarea');
+    const phoneInput = document.getElementById('phone');
+
+    // 1. Strict Restriction: Prevent non-numeric characters in Phone field
+    phoneInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9+]/g, ''); 
+    });
+
+    // 2. Handle Label Floating
+    inputs.forEach((input) => {
+        input.addEventListener('input', () => {
+            input.value !== '' ? input.classList.add('not-empty') : input.classList.remove('not-empty');
+        });
+    });
+
+    // 3. Authorization & Validation Logic
+    form.addEventListener('submit', (e) => {
+        let isFormValid = true;
+
+        // Validation Patterns
+        const patterns = {
+            full_name: /^[a-zA-Z\s]{3,50}$/,
+            email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+            phone: /^[0-9+]{7,15}$/
+        };
+
+        inputs.forEach((input) => {
+            if (input.id === 'problem') return; // Skip optional field
+
+            const errorMsg = input.parentElement.querySelector('.error');
+            let isValid = true;
+            let message = "This field is required";
+
+            // Check if Empty
+            if (!input.value.trim()) {
+                isValid = false;
+            } 
+            // Check Name (Letters only)
+            else if (input.name === 'full_name' && !patterns.full_name.test(input.value)) {
+                isValid = false;
+                message = "Please enter a valid name (letters only)";
+            }
+            // Check Email Format
+            else if (input.type === 'email' && !patterns.email.test(input.value)) {
+                isValid = false;
+                message = "Enter a valid email address";
+            }
+            // Check Phone Format
+            else if (input.name === 'phone' && !patterns.phone.test(input.value)) {
+                isValid = false;
+                message = "Enter a valid phone number";
+            }
+
+            if (!isValid) {
+                isFormValid = false;
+                input.classList.add('invalid');
+                if (errorMsg) {
+                    errorMsg.textContent = message;
+                    errorMsg.style.display = 'block';
+                }
+            } else {
+                input.classList.remove('invalid');
+                if (errorMsg) errorMsg.style.display = 'none';
+            }
+        });
+
+        if (!isFormValid) {
+            e.preventDefault();
+        } else {
+            e.preventDefault();
+            form.classList.add('zoom-submit');
+            setTimeout(() => { form.submit(); }, 500);
+        }
+    });
+</script>
+</body>
+</html>
