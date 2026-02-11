@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doctor Login</title>
+    <link rel="stylesheet" href="..\static\doctorlogin.css">
+</head>
+<body>
+
+  <form class="form-card" id="loginForm" action="/drprofile" method="POST" novalidate>
+    <h2>Doctor Login</h2>
+    
+    <div class="message-container">
+        <p class="status-message">{{ message }}</p>
+    </div>
+
+    <div class="section">
+      <div class="form-group">
+        <input type="tel" name="phone" id="phone" required>
+        <label for="phone">Phone Number*</label>
+        <small class="error">Valid phone number is required</small>
+      </div>
+
+      <div class="form-group">
+        <input type="password" name="password" id="password" required />
+        <label for="password">Password*</label>
+        <small class="error">Password is required</small>
+      </div>
+    </div>
+
+    <button type="submit">Login</button>
+    
+    <div class="subtitle" style="margin-top: 20px;">
+        Don't have an account? <a href="/register" style="color: #3182ce; text-decoration: none; font-weight: bold;">Register here</a>
+    </div>
+  </form>
+
+<script>
+    const form = document.getElementById('loginForm');
+    const inputs = document.querySelectorAll('input');
+    const phoneInput = document.getElementById('phone');
+
+    // 1. Authorization: ONLY allow numbers and '+' in the phone field
+    phoneInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9+]/g, '');
+    });
+
+    // 2. Float Label & State Logic
+    inputs.forEach((input) => {
+        if (input.value !== '') input.classList.add('not-empty');
+
+        input.addEventListener('input', () => {
+            input.value !== '' ? input.classList.add('not-empty') : input.classList.remove('not-empty');
+        });
+    });
+
+    // 3. Validation and Zoom-Exit Logic
+    form.addEventListener('submit', (e) => {
+        let isFormValid = true;
+        // Updated Pattern for Phone (minimum 7 digits)
+        const phonePattern = /^[0-9+]{7,15}$/;
+
+        inputs.forEach((input) => {
+            const errorMsg = input.parentElement.querySelector('.error');
+            let isValid = true;
+
+            if (!input.value.trim()) {
+                isValid = false;
+            } 
+            // Check phone format specifically
+            else if (input.id === 'phone' && !phonePattern.test(input.value)) {
+                isValid = false;
+            }
+
+            if (!isValid) {
+                isFormValid = false;
+                input.classList.add('invalid');
+                if (errorMsg) errorMsg.style.display = 'block';
+            } else {
+                input.classList.remove('invalid');
+                if (errorMsg) errorMsg.style.display = 'none';
+            }
+        });
+
+        if (!isFormValid) {
+            e.preventDefault();
+        } else {
+            e.preventDefault();
+            form.classList.add('zoom-submit');
+            setTimeout(() => {
+                form.submit();
+            }, 450);
+        }
+    });
+</script>
+</body>
+</html>
