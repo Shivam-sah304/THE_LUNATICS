@@ -151,14 +151,14 @@ def doctorlogin():
         password = request.form.get('password')
 
         user = Doctor.query.filter_by(phone=phone).first()
-        print(user.phone, user.password )
-        # if user == None:
-        #     return 'User not found'
-        # if check_password_hash(user.password, password):
-        #     session["user_id"] = user.phone
-        #     return redirect(url_for('routes.doctorvalidation'))
-        # else:
-        #     return "Invalid phone or password"  
+        if user == None:
+            return 'Cant login'
+       
+        if check_password_hash(user.password, password):
+            session["user_id"] = user.phone
+            return redirect(url_for('routes.home'))
+        else:
+            return "Invalid phone or password"  
     return render_template("doctorlogin.html")
     
 
