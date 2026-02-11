@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/profileseenbydoctor.css">
+</head>
+<body>
+
+  <main class="profile-container">
+
+    <section class="profile-card">
+      
+      <div class="menu-container">
+          <div class="menu-dots" id="menuBtn">
+              <span></span><span></span><span></span>
+          </div>
+
+          <!--  -->
+          <div class="dropdown-content" id="dropMenu">
+   <button type="button" onclick="toggleSubMenu(event)">
+    <i class="fas fa-user-edit"></i> Edit Profile
+</button>
+
+    <div class="sub-menu" id="editSubMenu">
+        <button onclick="location.href='/edit_profile'">
+            <i class="fas fa-id-card"></i> Edit Personal Detail
+        </button>
+        <button onclick="location.href='/change_password'">
+            <i class="fas fa-lock"></i> Change Password
+        </button>
+        <button onclick="location.href='/delete_account'">
+            <i class="fas fa-trash"></i> Delete Account
+        </button>
+    </div>
+</div>
+
+
+          <!--  -->
+      </div>
+
+
+      <div class="profile-photo">
+        <img src="{{ doctor.photo }}" alt="Photo of {{ doctor.name }}">
+        <h1 class="doctor-name">{{ doctor.name }}</h1>
+          
+<!--  -->
+<div class="Doctor-rating-display">
+    {% for i in range(1, 6) %}
+        {% if i <= doctor.rating %}
+            <i class="fas fa-star gold"></i>
+        {% else %}
+            <i class="fas fa-star"></i>
+        {% endif %}
+    {% endfor %}
+    
+</div>
+
+<!--  -->
+        <p class="doctor-specialty">{{ doctor.specialty }}</p>
+      </div>
+
+
+      <!-- from this form action the rating is submitted, after youb store the resilt in variable redirect it back to its route-->
+      <!-- <div id="reportInline" class="expand-section">
+          <form action="/submit_report" method="POST">
+              <h4>Report Doctor</h4>
+              <input type="hidden" name="doctor_id" value="{{ doctor.id }}">
+              <textarea name="report_text" placeholder="Reason for reporting..." required></textarea>
+              <button type="submit" class="submit-btn report-red">Submit Report</button>
+          </form>
+      </div> -->
+
+
+
+<!-- from this form action the rating is submitted, after youb store the resilt in variable redirect it back to its route-->
+
+
+
+<div id="ratingInline" class="expand-section">
+          <form action="/submit_rating" method="POST">
+              <h4>Rate Your Experience</h4>
+              
+              <input type="hidden" name="star_rating" id="starInput" value="0">
+              <input type="hidden" name="doctor_id" value="{{ doctor.id }}">
+
+              <div class="star-box" id="starContainer">
+                  <i class="fas fa-star" data-v="1"></i>
+                  <i class="fas fa-star" data-v="2"></i>
+                  <i class="fas fa-star" data-v="3"></i>
+                  <i class="fas fa-star" data-v="4"></i>
+                  <i class="fas fa-star" data-v="5"></i>
+              </div>
+              
+              <p style="font-size: 11px; color: #777; margin-bottom: 5px;">Share your experience (Optional):</p>
+              <textarea name="review_text" placeholder="Tell us more about your visit..."></textarea>
+              
+              <button type="submit" class="submit-btn rating-blue">Submit Rating</button>
+          </form>
+      </div>
+
+    </section>
+
+    <section class="about-section">
+      <h2>About Me</h2>
+      <p>{{ doctor.about }}</p>
+    </section>
+
+    <section class="contact-section">
+      <h2>Contact Me</h2>
+      <div class="contact-icons">
+        <a href="{{ doctor.facebook }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://wa.me/{{ doctor.whatsapp }}" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const dropMenu = document.getElementById('dropMenu');
+    const starInput = document.getElementById('starInput');
+
+    // Toggle Dropdown
+    menuBtn.onclick = (e) => {
+        e.stopPropagation();
+        dropMenu.classList.toggle('active');
+    };
+    ///////////////
+function toggleSubMenu(event) {
+    if (event) event.stopPropagation(); // This prevents the window.onclick from firing
+    const subMenu = document.getElementById("editSubMenu");
+    subMenu.classList.toggle("active");
+}
+
+      //////////////////
+
+    // Show Inline Form
+    function showInline(id) {
+        dropMenu.classList.remove('active');
+        document.querySelectorAll('.expand-section').forEach(section => {
+            if(section.id !== id) section.classList.remove('active');
+        });
+        document.getElementById(id).classList.toggle('active');
+    }
+
+    // Star Interaction - Now updates the hidden form field
+    const stars = document.querySelectorAll('#starContainer i');
+    stars.forEach(star => {
+        star.onclick = () => {
+            const val = star.getAttribute('data-v');
+            starInput.value = val; // Set the value in the hidden HTML input
+            stars.forEach(s => {
+                s.classList.toggle('gold', s.getAttribute('data-v') <= val);
+            });
+        };
+    });
+
+    // Outside click closes menu
+   window.onclick = function(event) {
+    // Only close if the user clicks completely outside the menu container
+    if (!event.target.closest('.menu-container')) {
+        dropMenu.classList.remove('active');
+        document.getElementById("editSubMenu").classList.remove("active");
+    }
+};
+  </script>
+
+</body>
+</html>
