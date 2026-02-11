@@ -30,16 +30,16 @@ def doctorregistration():
         )
         db.session.add(doctor)
         db.session.commit()
-        session["doctor_id"]=doctor.id
+        session["doctor_phone"]=doctor.phone
         return redirect(url_for('routes.doctorvalidation'))
 
     return render_template("doctorregistration.html")
 @routes.route("/doctor/doctorvalidation",methods=["GET","POST"])
 def doctorvalidation():
-    doctor_id=session.get("doctor_id")
-    if not doctor_id:
+    doctor_phone=session.get("doctor_phone")
+    if not doctor_phone:
         return redirect(url_for("routes.doctorregistration"))
-    doctor=Doctor.query.get_or_404(doctor_id)
+    doctor=Doctor.query.get_or_404(doctor_phone)
     if request.method == "POST":
         # Get text field
         doctor.nmc_number =request.form["nmc_number"]
@@ -63,18 +63,18 @@ def doctorvalidation():
         db.session.commit()
         return redirect(url_for("routes.doctorpassword"))  # go to next step
 
-    return render_template("validation1.html")
+    return render_template("doctorvalidation.html")
 
 from werkzeug.security import generate_password_hash
 
 @routes.route("/doctor/doctorpassword", methods=["GET", "POST"])
 #password
 def doctorpassword():
-    doctor_id = session.get("doctor_id")
-    if not doctor_id:
-        return redirect(url_for("routes.personal1"))  # Prevent skipping steps
+    doctor_phone = session.get("doctor_phone")
+    if not doctor_phone:
+        return redirect(url_for("routes.doctorregistration"))  # Prevent skipping steps
 
-    doctor = Doctor.query.get_or_404(doctor_id)
+    doctor = Doctor.query.get_or_404(doctor_phone)
 
     if request.method == "POST":
         # Get password from form
@@ -88,8 +88,8 @@ def doctorpassword():
         db.session.commit()
 
         # Registration completed, clear session
-        session.pop("doctor_id", None)
-        session["doctor_id"] = doctor_id
+        session.pop("doctor_phone", None)
+        session["doctor_phone"] = doctor_phone
 
         return redirect(url_for('routes.home')) # Or redirect to login
 
@@ -101,10 +101,10 @@ def doctorlogin():
         phone = request.form["phone"]
         password = request.form["password"]
 
-        user = Doctor.query.filter_by(phone=phone).first()
+        user = Doctor.query.get(phone)
 
         if user and check_password_hash(user.password, password):
-            session["user_id"] = user.id
+            session["doctor_phone"] = user.phone
             return redirect(url_for('routes.home'))
             # session["doctor_id"] = user.id
 

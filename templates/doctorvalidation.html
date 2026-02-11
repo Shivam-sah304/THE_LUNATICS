@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <form class="form-card" id="verificationForm" action="{{ url_for('routes.doctorvalidation')}}" method="POST" novalidate>
+    <form class="form-card" id="verificationForm" action="{{ url_for('routes.doctorvalidation') }}" method="POST" enctype="multipart/form-data" novalidate>
         <h2>Validation Section</h2>
         <p class="subtitle">Upload high-resolution documents for identity and license verification.</p>
 
@@ -52,61 +52,51 @@
     </form>
 
    <script>
-        const form = document.getElementById('verificationForm');
-        const inputs = document.querySelectorAll('input');
+const form = document.getElementById('verificationForm');
+const inputs = document.querySelectorAll('input');
 
-        // Handle Label Floating for text inputs
-        inputs.forEach(input => {
-            if (input.type !== 'file') {
-                input.addEventListener('input', () => {
-                    input.value !== '' ? input.classList.add('not-empty') : input.classList.remove('not-empty');
-                });
-            }
+// Floating label for text inputs
+inputs.forEach(input => {
+    if (input.type !== 'file') {
+        input.addEventListener('input', () => {
+            input.value !== '' ? input.classList.add('not-empty') : input.classList.remove('not-empty');
         });
+    }
+});
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            let isValidForm = true;
-            const nmcPattern = /^[a-zA-Z0-9\/\-]+$/;
+form.addEventListener('submit', (e) => {
+    let isValidForm = true;
+    const nmcPattern = /^[a-zA-Z0-9\/\-]+$/;
 
-            inputs.forEach(input => {
-                const errorMsg = input.parentElement.querySelector('.error');
-                let isValid = true;
+    inputs.forEach(input => {
+        const errorMsg = input.parentElement.querySelector('.error');
+        let isValid = true;
 
-                if (!input.value.trim()) {
-                    isValid = false;
-                    errorMsg.textContent = "This field is required";
-                } 
-                else if (input.name === 'nmc_number' && !nmcPattern.test(input.value)) {
-                    isValid = false;
-                    errorMsg.textContent = "Use letters, numbers, / or - only";
-                }
+        if (!input.value.trim()) {
+            isValid = false;
+            errorMsg.textContent = "This field is required";
+        } else if (input.name === 'nmc_number' && !nmcPattern.test(input.value)) {
+            isValid = false;
+            errorMsg.textContent = "Use letters, numbers, / or - only";
+        }
 
-                if (!isValid) {
-                    isValidForm = false;
-                    input.classList.add('invalid');
-                    errorMsg.style.display = 'block';
-                } else {
-                    input.classList.remove('invalid');
-                    errorMsg.style.display = 'none';
-                }
-            });
+        if (!isValid) {
+            isValidForm = false;
+            input.classList.add('invalid');
+            errorMsg.style.display = 'block';
+        } else {
+            input.classList.remove('invalid');
+            errorMsg.style.display = 'none';
+        }
+    });
 
- if (isValidForm) {
-    // Add exit animation
-    form.classList.add('zoom-submit');
-
-    setTimeout(() => {
-        alert('Success! Documents have been submitted for review.');
-        form.reset();
-        inputs.forEach(i => i.classList.remove('not-empty'));
-        form.classList.remove('zoom-submit'); // so re-entering doesn’t break
-    }, 450);  // matches exit animation duration
-}
-
-
-        });
-    </script>
+    if (!isValidForm) {
+        // Prevent submission only if invalid
+        e.preventDefault();
+    }
+    // If valid → do nothing, let Flask handle the POST and redirect
+});
+</script>
 </body>
 </html>
 

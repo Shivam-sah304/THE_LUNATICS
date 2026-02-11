@@ -3,7 +3,7 @@ from datetime import datetime
 db = SQLAlchemy()
 
 class Doctor(db.Model):
-    id = db.Column(db.Integer, nullable=False)
+    # id = db.Column(db.Integer, nullable=False)
     name=db.Column(db.String(50),nullable=False)
     email=db.Column(db.String(40),nullable=False)
     address=db.Column(db.String(50),nullable=False)
