@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
 from fillform import fillform
-
+from functools import wraps
 
 from models import db, Doctor
 
@@ -16,7 +16,6 @@ def home():
 @routes.route("/doctor/doctorregistration", methods=["GET", "POST"])
 def doctorregistration():
     if request.method == "POST":
-        # Store form data temporarily in session
         session["temp_doctor"] = {
             "name": request.form["fullname"],
             "email": request.form["email"],
@@ -28,15 +27,16 @@ def doctorregistration():
             "experience": request.form["experience"],
             "specialization": request.form.get("specialization", "")
         }
-        return redirect(url_for('routes.doctorvalidation'))
+
+        return redirect(url_for("routes.doctorvalidation"))
 
     return render_template("doctorregistration.html")
-
 
 # ---------------- Doctor Validation ----------------
 @routes.route("/doctor/doctorvalidation", methods=["GET", "POST"])
 def doctorvalidation():
     temp_doctor = session.get("temp_doctor")
+
     if not temp_doctor:
         return redirect(url_for("routes.doctorregistration"))
 
@@ -48,23 +48,51 @@ def doctorvalidation():
             flash("All fields are required")
             return redirect(url_for("routes.doctorvalidation"))
 
-        # Call Selenium function to verify doctor
+        # Verify using Selenium
         result = fillform(
             name=temp_doctor["name"],
             nmc_no=nmc_number,
             education=temp_doctor["degree"]
         )
 
-        if result == "no": 
-            flash("NMC number not verified. Please check and try again.") 
+        if result == "no":
+            flash("You are not a verified doctor")
+            session.pop("temp_doctor", None)
             return redirect(url_for("routes.doctorregistration"))
-        # Save photo
+
+        # Save photo temporarily
         upload_folder = "static/uploads"
         os.makedirs(upload_folder, exist_ok=True)
         photo_filename = secure_filename(photo.filename)
-        photo.save(os.path.join(upload_folder, photo_filename))
+        photo_path = os.path.join(upload_folder, photo_filename)
+        photo.save(photo_path)
 
-        # Save doctor to database
+        # Store extra validation data temporarily
+        temp_doctor["nmc_number"] = nmc_number
+        temp_doctor["photo"] = f"uploads/{photo_filename}"
+
+        session["temp_doctor"] = temp_doctor
+
+        return redirect(url_for("routes.doctorpassword"))
+
+    return render_template("doctorvalidation.html")
+
+# ---------------- Doctor Password ----------------
+@routes.route("/doctor/doctorpassword", methods=["GET", "POST"])
+def doctorpassword():
+    temp_doctor = session.get("temp_doctor")
+    
+    if not temp_doctor:
+        return redirect(url_for("routes.doctorregistration"))
+
+    if request.method == "POST":
+        raw_password = request.form.get("password")
+
+        if not raw_password or raw_password.strip() == "":
+            flash("Password is required")
+            return redirect(url_for("routes.doctorpassword"))
+
+        # Create doctor object NOW (only here)
         doctor = Doctor(
             name=temp_doctor["name"],
             email=temp_doctor["email"],
@@ -75,65 +103,71 @@ def doctorvalidation():
             degree=temp_doctor["degree"],
             experience=temp_doctor["experience"],
             specialization=temp_doctor["specialization"],
-            nmc_number=nmc_number,
-            photo=f"uploads/{photo_filename}"
+            nmc_number=temp_doctor["nmc_number"],
+            photo=temp_doctor["photo"],
+            password=generate_password_hash(raw_password)
         )
+
         db.session.add(doctor)
         db.session.commit()
 
-        # Clear temporary session data
-        session.pop("temp_doctor")
-        session["doctor_phone"] = doctor.phone
+        # Clear session completely
+        session.pop("temp_doctor", None)
 
-        return redirect(url_for("routes.doctorpassword"))
-
-    return render_template("doctorvalidation.html")
-
-
-# ---------------- Doctor Password ----------------
-@routes.route("/doctor/doctorpassword", methods=["GET", "POST"])
-def doctorpassword():
-    doctor_phone = session.get("doctor_phone")
-    if not doctor_phone:
-        return redirect(url_for("routes.doctorregistration"))
-
-    doctor = Doctor.query.get_or_404(doctor_phone)
-
-    if request.method == "POST":
-        raw_password = request.form.get("password")
-        if not raw_password or raw_password.strip() == "":
-            flash("Password is required")
-            return redirect(url_for("routes.doctorpassword"))
-
-        doctor.password = generate_password_hash(raw_password)
-        db.session.commit()
-
-        # Registration completed, clear session
-        session.pop("doctor_phone", None)
-
+        flash("Registration completed successfully!")
         return redirect(url_for("routes.home"))
 
     return render_template("doctorpassword.html")
 
-@routes.route("/doctorlogin", methods=["GET", "POST"])
+
+# @routes.route("/doctorlogin", methods=["GET", "POST"])
+# def doctorlogin():
+#     if request.method == "POST":
+#         phone = request.form["phone"]
+#         password = request.form["password"]
+
+#         user = Doctor.query.get(phone)
+
+#         if user and check_password_hash(user.password, password):
+#             session["doctor_phone"] = user.phone
+#             return redirect(url_for('routes.home'))
+#             # session["doctor_id"] = user.id
+
+#             # # Redirect to doctor profile
+#             # return redirect(url_for("routes.dr_profile1", id=user.id))
+#         else:
+#             return render_template(
+#                 "doctorlogin.html",
+#                 message="Invalid email or password"
+#             )
+
+#     return render_template("doctorlogin.html")
+
+
+@routes.route('/doctorlogin', methods=["POST","GET"])
 def doctorlogin():
-    if request.method == "POST":
-        phone = request.form["phone"]
-        password = request.form["password"]
+    if request.method=="POST":
+        phone = request.form.get('phone')
+        password = request.form.get('password')
 
-        user = Doctor.query.get(phone)
-
-        if user and check_password_hash(user.password, password):
-            session["doctor_phone"] = user.phone
-            return redirect(url_for('routes.home'))
-            # session["doctor_id"] = user.id
-
-            # # Redirect to doctor profile
-            # return redirect(url_for("routes.dr_profile1", id=user.id))
-        else:
-            return render_template(
-                "doctorlogin.html",
-                message="Invalid email or password"
-            )
-
+        user = Doctor.query.filter_by(phone=phone).first()
+        print(user.phone, user.password )
+        # if user == None:
+        #     return 'User not found'
+        # if check_password_hash(user.password, password):
+        #     session["user_id"] = user.phone
+        #     return redirect(url_for('routes.doctorvalidation'))
+        # else:
+        #     return "Invalid phone or password"  
     return render_template("doctorlogin.html")
+    
+
+
+
+# def login_required(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         if "user_id" not in session:
+#             return redirect(url_for("routes.doctorvalidation"))  # redirect to login if not logged in
+#         return f(*args, **kwargs)
+#     return decorated_function
