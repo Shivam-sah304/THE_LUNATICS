@@ -7,5 +7,5 @@ def doctor_registeration(**kwargs):
   phone.append(kwargs['phone'])
 
 
-def doctor_validation(**kwargs):
+def doctor_valdation(**kwargs):
   print(name)

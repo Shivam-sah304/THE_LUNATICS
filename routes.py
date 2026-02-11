@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, session,url_for
+from flask import Blueprint, jsonify, render_template, request, redirect, session,url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -6,7 +6,7 @@ import os
 
 
 
-from doctor_db import doctor_registeration, doctor_validation
+from doctor_db import doctor_registeration, doctor_valdation
 from models import db, Doctor
 
 routes = Blueprint("routes", __name__)
@@ -31,42 +31,56 @@ def doctorregistration():
     specialization = request.form.get("specialization")
 
     doctor_registeration(name, email, phone, address, dob, desc, degree, experience, specialization)
-    doctor_validation()
+    doctor_valdation()
 
-    return redirect(url_for("routes.doctorvalidation"))
+    return jsonify({"success": True, "redirect": url_for("routes.doctorvalidation")})
 
 
 
-@routes.route("/doctor/doctorvalidation",methods=["GET","POST"])
+@routes.route("/drvalidation",methods=["GET","POST"])
 def doctorvalidation():
-    doctor_id=session.get("doctor_id")
-    if not doctor_id:
-        return redirect(url_for("routes.doctorregistration"))
-    doctor=Doctor.query.get_or_404(doctor_id)
+    # doctor_id=session.get("doctor_id")
+    # if not doctor_id:
+    #     return redirect(url_for("routes.doctorregistration"))
+    # doctor=Doctor.query.get_or_404(doctor_id)
+    # if request.method == "POST":
+    #     # Get text field
+    #     doctor.nmc_number =request.form["nmc_number"]
+
+    #     # Handle file uploads
+    #     photo = request.files.get("doctor_photo")
+    #     nmc_photo = request.files.get("nmc_license")
+    #     if not all([photo, nmc_photo]):
+    #         return "All files are required", 400
+
+    #     upload_folder = "static/uploads"
+    #     os.makedirs(upload_folder, exist_ok=True)
+    #     photo_filename = secure_filename(photo.filename)
+    #     photo.save(os.path.join(upload_folder, photo_filename))
+    #     doctor.photo = f"uploads/{photo_filename}"  
+
+    #     license_filename = secure_filename(nmc_photo.filename)
+    #     nmc_photo.save(os.path.join(upload_folder, license_filename))
+    #     doctor.nmc_photo = f"uploads/{license_filename}"
+
+    #     db.session.commit()
+    #     return redirect(url_for("routes.doctorpassword"))  # go to next step
+
+    # return render_template("validation1.html")
+    if request.method == "GET":
+        return render_template("doctorvalidation.html")
+
     if request.method == "POST":
-        # Get text field
-        doctor.nmc_number =request.form["nmc_number"]
+        # Access files
+        doctor_photo = request.files.get("doctor_photo")
+        nmc_license = request.files.get("nmc_license")
+        nmc_number = request.form.get("nmc_number")
 
-        # Handle file uploads
-        photo = request.files.get("doctor_photo")
-        nmc_photo = request.files.get("nmc_license")
-        if not all([photo, nmc_photo]):
-            return "All files are required", 400
+        # TODO: Validate and save files
+        # e.g., doctor_photo.save(...)
 
-        upload_folder = "static/uploads"
-        os.makedirs(upload_folder, exist_ok=True)
-        photo_filename = secure_filename(photo.filename)
-        photo.save(os.path.join(upload_folder, photo_filename))
-        doctor.photo = f"uploads/{photo_filename}"  
+        return jsonify({"success": True})
 
-        license_filename = secure_filename(nmc_photo.filename)
-        nmc_photo.save(os.path.join(upload_folder, license_filename))
-        doctor.nmc_photo = f"uploads/{license_filename}"
-
-        db.session.commit()
-        return redirect(url_for("routes.doctorpassword"))  # go to next step
-
-    return render_template("validation1.html")
 
 from werkzeug.security import generate_password_hash
 

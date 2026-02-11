@@ -1,102 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Doctor Registration Form</title>
-  <link rel="stylesheet" href="../static/doctorregistration.css">
-</head>
-<body>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Doctor Registration Form</title>
+    <link rel="stylesheet" href="../static/doctorregistration.css">
+  </head>
+  <body>
 
-<form class="form-card" id="doctorRegistrationForm" novalidate>
-  <h2>Doctor Registration</h2>
+  <form class="form-card" id="doctorRegistrationForm" novalidate>
+    <h2>Doctor Registration</h2>
 
-  <div class="section">
-    <h3>Personal Details</h3>
+    <div class="section">
+      <h3>Personal Details</h3>
 
-    <div class="form-group">
-      <input type="text" name="fullname" id="fullname" required />
-      <label for="fullname">Full Name*</label>
-      <small class="error">Letters only</small>
+      <div class="form-group">
+        <input type="text" name="fullname" id="fullname" required />
+        <label for="fullname">Full Name*</label>
+        <small class="error">Letters only</small>
+      </div>
+
+      <div class="form-group">
+        <input type="email" name="email" id="email" required />
+        <label for="email">Email Address*</label>
+        <small class="error">Enter valid email</small>
+      </div>
     </div>
 
-    <div class="form-group">
-      <input type="email" name="email" id="email" required />
-      <label for="email">Email Address*</label>
-      <small class="error">Enter valid email</small>
-    </div>
-  </div>
+    <div class="section">
+      <h3>Personal Information</h3>
 
-  <div class="section">
-    <h3>Personal Information</h3>
+      <div class="form-group">
+        <input type="tel" name="phone" id="phone" required />
+        <label for="phone">Phone Number*</label>
+        <small class="error">7-15 digits only</small>
+      </div>
 
-    <div class="form-group">
-      <input type="tel" name="phone" id="phone" required />
-      <label for="phone">Phone Number*</label>
-      <small class="error">7-15 digits only</small>
-    </div>
+      <div class="form-group">
+        <input type="date" name="dob" id="dob" required />
+        <label for="dob">Date of Birth*</label>
+        <small class="error">Date required</small>
+      </div>
 
-    <div class="form-group">
-      <input type="date" name="dob" id="dob" required />
-      <label for="dob">Date of Birth*</label>
-      <small class="error">Date required</small>
-    </div>
-
-    <div class="form-group">
-      <textarea name="about" id="about" rows="3"></textarea>
-      <label for="about">About Yourself</label>
-    </div>
-  </div>
-
-  <div class="section">
-    <h3>Education</h3>
-
-    <div class="form-group">
-      <select name="education" id="education" required>
-        <option value="" disabled selected></option>
-        <option value="undergraduate">Undergraduate (MBBS)</option>
-        <option value="postgraduate">Postgraduate</option>
-      </select>
-      <label for="education">Highest Education*</label>
-      <small class="error">Required</small>
+      <div class="form-group">
+        <textarea name="about" id="about" rows="3"></textarea>
+        <label for="about">About Yourself</label>
+      </div>
     </div>
 
-    <div class="form-group" id="spec-group" style="display:none;">
-      <input type="text" name="specialization" id="specialization" />
-      <label for="specialization">Specialization*</label>
-      <small class="error">Required for PG</small>
+    <div class="section">
+      <h3>Education</h3>
+
+      <div class="form-group">
+        <select name="education" id="education" required>
+          <option value="" disabled selected></option>
+          <option value="undergraduate">Undergraduate (MBBS)</option>
+          <option value="postgraduate">Postgraduate</option>
+        </select>
+        <label for="education">Highest Education*</label>
+        <small class="error">Required</small>
+      </div>
+
+      <div class="form-group" id="spec-group" style="display:none;">
+        <input type="text" name="specialization" id="specialization" />
+        <label for="specialization">Specialization*</label>
+        <small class="error">Required for PG</small>
+      </div>
+
+      <div class="form-group">
+        <input type="number" name="experience" id="experience" min="0" required />
+        <label for="experience">Experience (Years)*</label>
+        <small class="error">Required</small>
+      </div>
     </div>
 
-    <div class="form-group">
-      <input type="number" name="experience" id="experience" min="0" required />
-      <label for="experience">Experience (Years)*</label>
-      <small class="error">Required</small>
+    <div class="section">
+      <h3>Address</h3>
+
+      <div class="form-group">
+        <input type="text" name="address" id="address" required />
+        <label for="address">Residential Address*</label>
+        <small class="error">Required</small>
+      </div>
     </div>
-  </div>
 
-  <div class="section">
-    <h3>Address</h3>
+    <button type="submit">Submit Personal Details</button>
 
-    <div class="form-group">
-      <input type="text" name="address" id="address" required />
-      <label for="address">Residential Address*</label>
-      <small class="error">Required</small>
+    <div class="subtitle" style="margin-top:20px;text-align:center;">
+      <span style="color:grey">Already have an account?</span>
+      <a href="/drlogin" style="color:#3182ce;font-weight:bold;text-decoration:none;">
+        Login here
+      </a>
     </div>
-  </div>
 
-  <button type="submit">Submit Personal Details</button>
+  </form>
 
-  <div class="subtitle" style="margin-top:20px;text-align:center;">
-    <span style="color:grey">Already have an account?</span>
-    <a href="/drlogin" style="color:#3182ce;font-weight:bold;text-decoration:none;">
-      Login here
-    </a>
-  </div>
-
-</form>
-
-<script>
-const form = document.getElementById('doctorRegistrationForm');
+  <script>
+  const form = document.getElementById('doctorRegistrationForm');
 const eduSelect = document.getElementById('education');
 const specGroup = document.getElementById('spec-group');
 const specInput = document.getElementById('specialization');
@@ -104,8 +104,8 @@ const phoneInput = document.getElementById('phone');
 const inputs = document.querySelectorAll('input, select, textarea');
 
 // Show specialization if postgraduate
-eduSelect.addEventListener('change', function() {
-    if (this.value === 'postgraduate') {
+eduSelect.addEventListener('change', () => {
+    if (eduSelect.value === 'postgraduate') {
         specGroup.style.display = 'block';
         specInput.required = true;
     } else {
@@ -123,16 +123,15 @@ phoneInput.addEventListener('keypress', (e) => {
 // Floating labels
 inputs.forEach(input => {
     input.addEventListener('input', () => {
-        input.value ? input.classList.add('not-empty')
-                    : input.classList.remove('not-empty');
+        input.value ? input.classList.add('not-empty') : input.classList.remove('not-empty');
     });
 });
 
+// Form submission with AJAX
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     let isFormValid = true;
-
     const patterns = {
         fullname: /^[a-zA-Z\s]{2,50}$/,
         email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -141,7 +140,6 @@ form.addEventListener('submit', async (e) => {
 
     inputs.forEach(input => {
         if (input.parentElement.style.display === 'none') return;
-
         const errorMsg = input.parentElement.querySelector('.error');
         let isValid = true;
 
@@ -164,31 +162,30 @@ form.addEventListener('submit', async (e) => {
 
     form.classList.add('zoom-submit');
 
-    setTimeout(async () => {
-        try {
-            const formData = new FormData(form);
+    try {
+        const formData = new FormData(form);
+        const response = await fetch('/doctorregistration', {
+            method: 'POST',
+            body: formData
+        });
 
-            const response = await fetch('/doctorregistration', {
-                method: 'POST',
-                body: formData
-            });
+        const data = await response.json(); // safely parse JSON
 
-            const data = await response.json();
-
-            if (response.ok) {
-                window.location.href = '/drvalidation';
-            } else {
-                alert(data.message || "Registration failed");
-                form.classList.remove('zoom-submit');
-            }
-
-        } catch (err) {
-            alert("Server error");
+        if (response.ok && data.success) {
+            // Use redirect URL from backend JSON
+            window.location.href = data.redirect;
+        } else {
+            alert(data.message || "Registration failed");
             form.classList.remove('zoom-submit');
         }
-    }, 500);
-});
-</script>
 
-</body>
-</html>
+    } catch (err) {
+        alert("Server error");
+        form.classList.remove('zoom-submit');
+    }
+});
+
+  </script>
+
+  </body>
+  </html>

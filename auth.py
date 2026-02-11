@@ -1,23 +1,36 @@
-from flask import Flask, request, jsonify
-from flask_jwt_extended import (
-    JWTManager, create_access_token, jwt_required, get_jwt_identity
-)
+from flask import Flask, redirect, request, jsonify, session, url_for
+
+import config
+from models import Doctor
+from werkzeug.security import check_password_hash
+
+from functools import wraps
 
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "your-secret-key"  # Change this
-jwt = JWTManager(app)
 
+from datetime import timedelta
+config.SECRET_KEY 
 
 # Doctor Login route - issues JWT token
 @app.route('/drlogin', methods=['POST'])
 def login():
-    user_id = request.json.get('phone')
+    phone = request.json.get('phone')
     password = request.json.get('password')
 
     user = Doctor.query.filter_by(phone=phone).first()
-    # Dummy check – replace with DB check
-    if user_id == "samir" and password == "password123":
-        access_token = create_access_token(identity=user_id)
-        return jsonify(access_token=access_token)
-    return jsonify({"msg": "Bad username or password"}), 401
 
+    if user and check_password_hash(user.password, password):
+        session["user_id"] = user.phone
+        return redirect(url_for('routes.home'))
+    else:
+        return "Invalid phone or password"  
+
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("routes.doctorlogin"))  # redirect to login if not logged in
+        return f(*args, **kwargs)
+    return decorated_function
