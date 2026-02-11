@@ -50,8 +50,8 @@
 /* ============================= */
 /* CONFIGURATION */
 /* ============================= */
-const MY_ID = "samir_dai";      // change per browser
-const TARGET_ID = "sishir dai";   // change to who you want to chat with
+const MY_ID = "samirdai";      // change per browser
+const TARGET_ID = "samirdai";   // change to who you want to chat with
 
 document.getElementById("myIdDisplay").textContent = MY_ID;
 document.getElementById("targetIdDisplay").textContent = TARGET_ID;
@@ -221,6 +221,11 @@ ws.addEventListener("message", async event=>{
   const msg=JSON.parse(event.data);
 
   if(msg.type==="offer"){
+    const li = document.createElement("li");
+    li.textContent = "You have got a call from "+msg.from ;
+    document.getElementById("chat").appendChild(li);
+    // MY_ID = msg.get("to")
+    TARGET_ID = msg.from
     await createPeer();
     await pc.setRemoteDescription(msg.offer);
     // Receiver
