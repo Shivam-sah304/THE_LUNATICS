@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doctor Registration Form</title>
+  <link rel="stylesheet" href="">
+</head>
+<body>
+
+  <form class="form-card" id="doctorRegistrationForm" novalidate>
+    <h2>Doctor Registration</h2>
+
+    <div class="section">
+      <h3>Personal Details</h3>
+      <div class="form-group">
+        <input type="text" name="fullname" id="fullname" required />
+        <label for="fullname">Full Name*</label>
+        <small class="error">Name should only contain letters</small>
+      </div>
+
+      <div class="form-group">
+        <input type="email" name="email" id="email" required />
+        <label for="email">Email Address*</label>
+        <small class="error">Enter a valid email (e.g. name@mail.com)</small>
+      </div>
+    </div>
+
+
+
+    <div class="section">
+      <h3>Personal Information</h3>
+      
+      <div class="form-group">
+        <input type="tel" name="phone" id="phone" required />
+        <label for="phone">Phone Number*</label>
+        <small class="error">Enter a valid phone number</small>
+      </div>
+
+      <div class="form-group">
+        <input type="date" name="dob" id="dob" required />
+        <label for="dob" class="date-label">Date of Birth*</label>
+        <small class="error">Date of birth is required</small>
+      </div>
+
+
+      <div class="form-group">
+  <textarea name="about" id="about" rows="3"></textarea>
+  <label for="about">About Yourself (Optional)</label>
+</div>
+
+          <div class="section">
+      <h3>Education</h3>
+      
+      <div class="form-group">
+        <select name="education" id="education" required>
+          <option value="" disabled selected></option>
+          <option value="undergraduate">Undergraduate (MBBS)</option>
+          <option value="postgraduate">Postgraduate</option>
+        </select>
+        <label for="education">Highest Education*</label>
+        <small class="error">Please select your education</small>
+      </div>
+
+      <div class="form-group" id="spec-group" style="display: none;">
+        <input type="text" name="specialization" id="specialization" />
+        <label for="specialization">Specialization (e.g. Cardiology)*</label>
+        <small class="error">Specialization is required for Postgraduates</small>
+      </div>
+
+      <div class="form-group">
+        <input type="number" name="experience" id="experience" min="0" required />
+        <label for="experience">Work Experience (Years)*</label>
+        <small class="error">Enter years of experience</small>
+      </div>
+
+
+
+
+
+    <div class="section">
+      <h3>Address </h3> 
+
+      <div class="form-group">
+        <input type="text" name="address" id="address" required />
+        <label for="address">Residential Address*</label>
+        <small class="error">Address is required</small>
+      </div>
+    </div>
+
+
+    <!-- add reference here -->
+   <button type="submit"><a href=" add refernce here" style="text-decoration: none;color: white;">Submit Personal Details</button>
+
+     </div>
+
+
+   
+        <div class="subtitle" style="margin-top: 20px; margin-left:90px">
+
+              <!-- add reference here -->
+        <span style="color:grey">Already have an account? </span><a href="" style="color: #3182ce; text-decoration: none; font-weight: bold; ">Login here</a>
+    </div>
+    
+    </div>
+  </form>
+
+
+</body>
+</html>
