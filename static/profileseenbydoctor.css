@@ -146,14 +146,12 @@ textarea {
 
 /* --- RESTORED ORIGINAL STYLES --- */
 .profile-photo img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 4px solid #2563eb;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto 10px;
-  transition: transform 0.3s, box-shadow 0.3s;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 4px solid #2563eb;
+    object-fit: cover;
+    display: block;
 }
 
 .profile-photo img:hover {
@@ -239,4 +237,41 @@ textarea {
   padding-left: 35px !important;
   font-size: 13px !important;
   color: #666 !important;
+}
+
+.photo-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 15px;      /* Adjusts vertical position on the curve */
+    right: 15px;       /* Adjusts horizontal position on the curve */
+    width: 18px;
+    height: 18px;
+    background-color: #2ecc71; /* Green color */
+    border: 3px solid #ffffff; /* White ring to separate from photo */
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-photo img {
+    margin: 0 auto !important;
+    display: block;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 10px;      /* Distance from bottom edge */
+    right: 10px;       /* Distance from right edge */
+    width: 18px;
+    height: 18px;
+    background-color: #2ecc71; /* Green */
+    border: 3px solid #ffffff; /* White border to separate from photo */
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
