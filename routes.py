@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, session,url_for
+from flask import Blueprint, render_template, request, redirect, session,url_for,flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
-
+from fillform import fillform
 
 
 from models import db, Doctor
@@ -16,82 +16,102 @@ def home():
 @routes.route("/doctor/doctorregistration", methods=["GET", "POST"])
 def doctorregistration():
     if request.method == "POST":
-        # Get data from form
-        doctor=Doctor(
-        name = request.form["fullname"],          # form uses 'fullname' but model uses 'name'
-        email = request.form["email"],
-        phone = request.form["phone"],
-        address = request.form["address"],
-        dob = datetime.strptime(request.form["dob"], "%Y-%m-%d").date(),
-        desc = request.form.get("about"),         # optional
-        degree = request.form["education"],
-        experience = request.form["experience"],
-        specialization = request.form.get("specialization")  # optional
-        )
-        db.session.add(doctor)
-        db.session.commit()
-        session["doctor_phone"]=doctor.phone
+        # Store form data temporarily in session
+        session["temp_doctor"] = {
+            "name": request.form["fullname"],
+            "email": request.form["email"],
+            "phone": request.form["phone"],
+            "address": request.form["address"],
+            "dob": request.form["dob"],
+            "desc": request.form.get("about", ""),
+            "degree": request.form["education"],
+            "experience": request.form["experience"],
+            "specialization": request.form.get("specialization", "")
+        }
         return redirect(url_for('routes.doctorvalidation'))
 
     return render_template("doctorregistration.html")
-@routes.route("/doctor/doctorvalidation",methods=["GET","POST"])
+
+
+# ---------------- Doctor Validation ----------------
+@routes.route("/doctor/doctorvalidation", methods=["GET", "POST"])
 def doctorvalidation():
-    doctor_phone=session.get("doctor_phone")
-    if not doctor_phone:
+    temp_doctor = session.get("temp_doctor")
+    if not temp_doctor:
         return redirect(url_for("routes.doctorregistration"))
-    doctor=Doctor.query.get_or_404(doctor_phone)
+
     if request.method == "POST":
-        # Get text field
-        doctor.nmc_number =request.form["nmc_number"]
-
-        # Handle file uploads
+        nmc_number = request.form.get("nmc_number")
         photo = request.files.get("doctor_photo")
-        nmc_photo = request.files.get("nmc_license")
-        if not all([photo, nmc_photo]):
-            return "All files are required", 400
 
+        if not nmc_number or not photo:
+            flash("All fields are required")
+            return redirect(url_for("routes.doctorvalidation"))
+
+        # Call Selenium function to verify doctor
+        result = fillform(
+            name=temp_doctor["name"],
+            nmc_no=nmc_number,
+            education=temp_doctor["degree"]
+        )
+
+        if result == "no": 
+            flash("NMC number not verified. Please check and try again.") 
+            return redirect(url_for("routes.doctorregistration"))
+        # Save photo
         upload_folder = "static/uploads"
         os.makedirs(upload_folder, exist_ok=True)
         photo_filename = secure_filename(photo.filename)
         photo.save(os.path.join(upload_folder, photo_filename))
-        doctor.photo = f"uploads/{photo_filename}"  
 
-        license_filename = secure_filename(nmc_photo.filename)
-        nmc_photo.save(os.path.join(upload_folder, license_filename))
-        doctor.nmc_photo = f"uploads/{license_filename}"
-
+        # Save doctor to database
+        doctor = Doctor(
+            name=temp_doctor["name"],
+            email=temp_doctor["email"],
+            phone=temp_doctor["phone"],
+            address=temp_doctor["address"],
+            dob=datetime.strptime(temp_doctor["dob"], "%Y-%m-%d").date(),
+            desc=temp_doctor["desc"],
+            degree=temp_doctor["degree"],
+            experience=temp_doctor["experience"],
+            specialization=temp_doctor["specialization"],
+            nmc_number=nmc_number,
+            photo=f"uploads/{photo_filename}"
+        )
+        db.session.add(doctor)
         db.session.commit()
-        return redirect(url_for("routes.doctorpassword"))  # go to next step
+
+        # Clear temporary session data
+        session.pop("temp_doctor")
+        session["doctor_phone"] = doctor.phone
+
+        return redirect(url_for("routes.doctorpassword"))
 
     return render_template("doctorvalidation.html")
 
-from werkzeug.security import generate_password_hash
 
+# ---------------- Doctor Password ----------------
 @routes.route("/doctor/doctorpassword", methods=["GET", "POST"])
-#password
 def doctorpassword():
     doctor_phone = session.get("doctor_phone")
     if not doctor_phone:
-        return redirect(url_for("routes.doctorregistration"))  # Prevent skipping steps
+        return redirect(url_for("routes.doctorregistration"))
 
     doctor = Doctor.query.get_or_404(doctor_phone)
 
     if request.method == "POST":
-        # Get password from form
         raw_password = request.form.get("password")
         if not raw_password or raw_password.strip() == "":
-            return "Password is required", 400
+            flash("Password is required")
+            return redirect(url_for("routes.doctorpassword"))
 
-        # Hash the password before storing
         doctor.password = generate_password_hash(raw_password)
-
         db.session.commit()
 
         # Registration completed, clear session
         session.pop("doctor_phone", None)
-        session["doctor_phone"] = doctor_phone
 
-        return redirect(url_for('routes.home')) # Or redirect to login
+        return redirect(url_for("routes.home"))
 
     return render_template("doctorpassword.html")
 
