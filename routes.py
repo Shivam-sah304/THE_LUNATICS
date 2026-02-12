@@ -195,6 +195,7 @@ def doctorlogin():
         return redirect(url_for('routes.profileseenbydoctor'))
 
     return render_template("doctorlogin.html")
+
 # def login_required(f):
 #     @wraps(f)
 #     def decorated_function(*args, **kwargs):
@@ -204,6 +205,7 @@ def doctorlogin():
 #     return decorated_function
 #prersonal
 # Step 1: Register patient
+
 @routes.route("/patient/patient_register", methods=["GET", "POST"])
 def patient_register():
     if request.method == "POST":
@@ -270,7 +272,7 @@ def patient_password():
         # Clear session
         session.pop("patient_id", None)
 
-        return redirect(url_for("routes.home"))
+        return redirect(url_for("routes.doctor_table"))
 
     return render_template("patient_password.html")
 @routes.route("/patientlogin", methods=["GET", "POST"])
@@ -292,3 +294,13 @@ def patientlogin():
             )
 
     return render_template("patientlogin.html")
+
+
+# @routes.route("/doctor_table")
+# def doctor_table():
+#     doctors = Doctor.query.all()
+#     return render_template("doctor_table.html", doctors=doctors)
+# @routes.route("/doctor/<phone>")
+# def doctor_patient(phone):
+#     doctor = Doctor.query.get_or_404(phone)  # works because phone is PK
+#     return render_template("doctor_patient.html", doctor=doctor) 
