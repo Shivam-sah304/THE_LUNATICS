@@ -53,38 +53,7 @@
           <p class="doctor-specialty">{{ doctor.specialization }}</p>
       </div>
 
-      <!-- Report Form -->
-      <!--
-      <div id="reportInline" class="expand-section">
-          <form action="/submit_report" method="POST">
-              <h4>Report Doctor</h4>
-              <input type="hidden" name="doctor_phone" value="{{ doctor.phone }}">
-              <textarea name="report_text" placeholder="Reason for reporting..." required></textarea>
-              <button type="submit" class="submit-btn report-red">Submit Report</button>
-          </form>
-      </div>
-      -->
-
-      <!-- Rating Form -->
-      <!--
-      <div id="ratingInline" class="expand-section">
-          <form action="/submit_rating" method="POST">
-              <h4>Rate Your Experience</h4>
-              <input type="hidden" name="star_rating" id="starInput" value="0">
-              <input type="hidden" name="doctor_phone" value="{{ doctor.phone }}">
-              <div class="star-box" id="starContainer">
-                  <i class="fas fa-star" data-v="1"></i>
-                  <i class="fas fa-star" data-v="2"></i>
-                  <i class="fas fa-star" data-v="3"></i>
-                  <i class="fas fa-star" data-v="4"></i>
-                  <i class="fas fa-star" data-v="5"></i>
-              </div>
-              <p style="font-size: 11px; color: #777; margin-bottom: 5px;">Share your experience (Optional):</p>
-              <textarea name="review_text" placeholder="Tell us more about your visit..."></textarea>
-              <button type="submit" class="submit-btn rating-blue">Submit Rating</button>
-          </form>
-      </div>
-      -->
+      
 
     </section>
 
@@ -93,11 +62,30 @@
       <p>{{ doctor.desc }}</p>
     </section>
 
+    <section class="about-section">
+      <h3 ><a href= "{{ url_for('routes.patient_table')}}"> Patient Table</a></h2>
+      
+    </section>
+
     
 
   </main>
 
   <script>
+
+    const MY_ID = "{{ request.args.get('user_id') or session.get('user_phone') }}";
+
+    const role = "{{ session.get('role', '') }}";;
+    
+
+    if(MY_ID){  // only run WS if logged in
+        const ws = new WebSocket("ws://10.61.200.106:8080");
+
+        ws.onopen = () => {
+            console.log("Connected");
+            ws.send(JSON.stringify({ type: "auth", user_id: MY_ID }));
+        };
+    }
     const menuBtn = document.getElementById('menuBtn');
     const dropMenu = document.getElementById('dropMenu');
     const starInput = document.getElementById('starInput');

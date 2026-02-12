@@ -151,12 +151,12 @@
         </div>
 
         <div class="form-group">
-            <input type="text" name="speciality" value="{{ doctor.specialization }}" required>
+            <input type="text" name="speciality" value="{{ doctor.specialization }}">
             <label for="speciality">Speciality</label>
         </div>
 
         <div class="form-group">
-    <textarea name="bio" id="bio" required>{{ doctor.desc }}</textarea>
+    <textarea id="bio" name="desc" required>{{ doctor.desc }}</textarea>
     <label for="bio">Professional Bio</label>
 </div>
     </div>
@@ -179,16 +179,16 @@
     });
 
     // Handle Animation on Submit
-    form.addEventListener('submit', function(e) {
-        e.preventDefault(); 
-        this.classList.add('zoom-submit');
+    // form.addEventListener('submit', function(e) {
+    //     e.preventDefault(); 
+    //     this.classList.add('zoom-submit');
         
-        // Simulate redirect or server process after animation
-        setTimeout(() => {
-            alert("Information Updated Successfully!");
-            // this.submit(); // Uncomment to actually submit to your Flask route
-        }, 450);
-    });
+    //     // Simulate redirect or server process after animation
+    //     setTimeout(() => {
+    //         alert("Information Updated Successfully!");
+    //         // this.submit(); // Uncomment to actually submit to your Flask route
+    //     }, 450);
+    // });
 </script>
 
 </body>

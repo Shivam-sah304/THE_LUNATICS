@@ -16,11 +16,11 @@
                     <th>patient Name</th>
                     
                     <th>Contact</th>
-                    <th>Profile</th>
+                    
                 </tr>
             </thead>
             <tbody>
-                {% for patient in patients %}
+                {% for patient in patient %}
 <tr class="dr-row">
     <td>{{ loop.index }}</td>
     <td class="dr-name">{{ patient.name }}</td>
@@ -53,27 +53,7 @@
     <td>{{ loop.index }}</td>
     <td class="dr-name">{{ patient.name }}</td>
     <td>{{ patient.phone }}</td>
-    <td>
-        <div class="profile-wrapper">
-            <a href="{{ url_for('routes.doctor_patient', phone=patient.phone) }}">
-                Visit Profile
-            </a>
-
-            <div class="hover-preview">
-                {% if patient.photo %}
-                    <img
-                        src="{{ url_for('static', filename=patient.photo) }}"
-                        alt="Patient"
-                        style="width:100px; height:100px; object-fit:cover; border-radius:50%;">
-                {% else %}
-                    <img
-                        src="https://via.placeholder.com/100?text=No+User"
-                        alt="No Photo"
-                        style="width:100px; height:100px; object-fit:cover; border-radius:50%;">
-                {% endif %}
-            </div>
-        </div>
-    </td>
+    
 </tr>
 {% endfor %}
 

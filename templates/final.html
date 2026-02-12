@@ -1,3 +1,5 @@
+<!--final with emergency-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,6 +19,7 @@
             --bubble-them: #e4e6eb;
             --border: #dee2e6;
             --danger: #ff4444;
+            --emergency: #dc2626;
         }
 
         body {
@@ -111,6 +114,24 @@
             color: var(--text-main);
         }
 
+        #chat li.system-msg {
+            align-self: center;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            font-size: 0.85rem;
+            max-width: 80%;
+        }
+
+        #chat li.emergency-msg {
+            align-self: center;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid var(--emergency);
+            font-weight: 600;
+            max-width: 80%;
+        }
+
         /* Video Call Section */
         .call-area {
             padding: 15px;
@@ -198,7 +219,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px; /* Prevents icon and text collision */
+            gap: 8px;
             transition: color 0.2s;
             width: 50px;
             white-space: nowrap;
@@ -214,6 +235,99 @@
         .icon-pdf { color: #f02849; }
         .icon-camera { color: #1877f2; }
 
+        /* Emergency Button */
+        .emergency-btn {
+            background: var(--emergency);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .emergency-btn:hover {
+            background: #b91c1c;
+        }
+
+        .emergency-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Emergency Modal */
+        .emergency-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .emergency-modal.active {
+            display: flex;
+        }
+
+        .emergency-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .emergency-content h3 {
+            color: var(--emergency);
+            margin-top: 0;
+        }
+
+        .doctor-list {
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .doctor-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accept-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
     </style>
 </head>
 <body>
@@ -225,12 +339,26 @@
             <div class="profile-card">
                 <small style="color:#65676b">Connected as:</small><br>
                 <strong><span id="myIdDisplay">...</span></strong>
+                <div style="margin-top: 5px; font-size: 0.85rem; color: #666;">
+                    Role: <span id="myRoleDisplay">...</span>
+                </div>
             </div>
             <div class="profile-card">
                 <small style="color:#65676b">Chatting with:</small><br>
                 <strong><span id="targetIdDisplay">...</span></strong>
             </div>
+            
+            <!-- Emergency Button for Patients -->
+            <button id="emergencyBtn" class="emergency-btn" style="display: none;" onclick="triggerEmergency()">
+                <i class="fas fa-exclamation-triangle"></i> EMERGENCY
+            </button>
+            
+            <!-- Emergency Status for Patients -->
+            <div id="emergencyStatus" style="display: none; margin-top: 10px; padding: 10px; background: #fee2e2; border-radius: 8px; font-size: 0.85rem; color: #991b1b;">
+                <i class="fas fa-spinner fa-spin"></i> Waiting for doctor...
+            </div>
         </div>
+        
         <div style="padding: 20px;">
             <p style="color: #65676b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tools</p>
             <button id="recordBtn" class="icon-btn" style="font-size: 0.9rem; border: 1px solid var(--border); border-radius: 8px; padding: 10px; width: 100%; margin-bottom: 10px; background: white; text-align: left;">
@@ -294,20 +422,66 @@
     </div>
 </div>
 
+<!-- Emergency Modal for Doctors -->
+<div id="emergencyModal" class="emergency-modal">
+    <div class="emergency-content">
+        <h3><i class="fas fa-exclamation-triangle"></i> INCOMING EMERGENCY</h3>
+        <p>Patient <strong id="emergencyPatient">...</strong> needs immediate assistance!</p>
+        <div class="doctor-list">
+            <div style="padding: 15px; background: #fef3c7; border-radius: 8px; margin-bottom: 15px;">
+                <i class="fas fa-clock pulse"></i> Respond quickly to accept this emergency
+            </div>
+        </div>
+        <button class="accept-btn" onclick="acceptEmergency()" style="padding: 12px 30px; font-size: 1rem;">
+            <i class="fas fa-check"></i> ACCEPT EMERGENCY
+        </button>
+        <button onclick="closeEmergencyModal()" style="background: none; border: none; color: #666; margin-top: 10px; cursor: pointer;">
+            Dismiss
+        </button>
+    </div>
+</div>
+
 <script>
-// Logic remains unchanged as per requirements
-const MY_ID = "samir";
-let TARGET_ID = "sishir"; 
+
+const MY_ID = "{{ data.my_id }}";
+const TARGET_ID = "{{ data.target_id }}";
+const MY_ROLE = "{{ data.role or '' }}";
+// =========================
+// CONFIGURATION
+// =========================
+
+console.log(MY_ID, TARGET_ID, MY_ROLE)
+
+
+// Emergency state
+let currentEmergency = null;
+let emergencyAccepted = false;
 
 document.getElementById("myIdDisplay").textContent = MY_ID;
+document.getElementById("myRoleDisplay").textContent = MY_ROLE;
 document.getElementById("targetIdDisplay").textContent = TARGET_ID;
 
+// Show emergency button only for patients
+if (MY_ROLE === "patient") {
+    document.getElementById("emergencyBtn").style.display = "flex";
+}
+
+// =========================
+// WEBSOCKET SETUP
+// =========================
 const ws = new WebSocket("ws://10.61.200.106:8080");
 let mediaRecorder, audioChunks = [];
 let pc, localStream;
 const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
-ws.onopen = () => ws.send(JSON.stringify({ type: "auth", user_id: MY_ID }));
+ws.onopen = () => {
+    // Send auth with role
+    ws.send(JSON.stringify({ 
+        type: "auth", 
+        user_id: MY_ID,
+        role: MY_ROLE 
+    }));
+};
 
 ws.onmessage = async (event) => {
     if (typeof event.data === "string") {
@@ -315,9 +489,46 @@ ws.onmessage = async (event) => {
         try { msg = JSON.parse(event.data); } 
         catch { return; }
 
-        if (msg.type === "message") {
+        // ================= EMERGENCY HANDLING =================
+        if (msg.type === "incoming_emergency" && MY_ROLE === "doctor") {
+            // Show emergency modal for doctors
+            currentEmergency = {
+                emergency_id: msg.emergency_id,
+                patient_id: msg.from
+            };
+            document.getElementById("emergencyPatient").textContent = msg.from;
+            document.getElementById("emergencyModal").classList.add("active");
+            
+            // Play alert sound (optional)
+            appendMessage("emergency-msg", `🚨 INCOMING EMERGENCY from ${msg.from}!`);
+        }
+        else if (msg.type === "emergency_accepted" && MY_ROLE === "patient") {
+            // Patient's emergency was accepted
+            emergencyAccepted = true;
+            document.getElementById("emergencyStatus").innerHTML = 
+                `<i class="fas fa-check-circle"></i> Dr. ${msg.doctor} accepted! Connecting...`;
+            document.getElementById("emergencyStatus").style.background = "#d1fae5";
+            document.getElementById("emergencyStatus").style.color = "#065f46";
+            
+            appendMessage("system-msg", `✅ Emergency accepted by Dr. ${msg.doctor}. You can now communicate.`);
+            
+            // Auto-update target to doctor for direct communication
+            TARGET_ID = msg.doctor;
+            document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+        }
+        else if (msg.type === "emergency_cancelled" && MY_ROLE === "doctor") {
+            // Another doctor accepted, remove from this doctor's view
+            if (currentEmergency && currentEmergency.emergency_id === msg.emergency_id) {
+                closeEmergencyModal();
+                appendMessage("system-msg", "This emergency was handled by another doctor.");
+                currentEmergency = null;
+            }
+        }
+        // ================= REGULAR MESSAGES =================
+        else if (msg.type === "message") {
             appendMessage("them-msg", `<strong>${msg.from}:</strong> ${msg.message}`);
         }
+        // ================= WEBRTC =================
         else if (msg.type === "offer") {
             appendMessage("them-msg", "<i>Incoming call...</i>");
             document.getElementById("callArea").style.display = "flex";
@@ -327,13 +538,76 @@ ws.onmessage = async (event) => {
             await pc.setLocalDescription(answer);
             ws.send(JSON.stringify({ type: "answer", from: MY_ID, to: TARGET_ID, answer: answer }));
         }
-        else if (msg.type === "answer") { await pc.setRemoteDescription(msg.answer); }
-        else if (msg.type === "ice") { if(pc) await pc.addIceCandidate(msg.candidate); }
-        else if (msg.type === "hangup") { handleHangup(); }
+        else if (msg.type === "answer") { 
+            await pc.setRemoteDescription(msg.answer); 
+        }
+        else if (msg.type === "ice") { 
+            if(pc) await pc.addIceCandidate(msg.candidate); 
+        }
+        else if (msg.type === "hangup") { 
+            handleHangup(); 
+        }
     } else {
         handleBinary(event.data);
     }
 };
+
+// =========================
+// EMERGENCY FUNCTIONS
+// =========================
+
+function triggerEmergency() {
+    if (emergencyAccepted) {
+        appendMessage("system-msg", "Emergency already active. Use regular chat or call.");
+        return;
+    }
+    
+    const emergencyId = "EMRG_" + Date.now() + "_" + MY_ID;
+    currentEmergency = {
+        emergency_id: emergencyId,
+        patient_id: MY_ID
+    };
+    
+    // Send emergency to server
+    ws.send(JSON.stringify({
+        type: "emergency",
+        s: 1,
+        emergency_id: emergencyId
+    }));
+    
+    // Update UI
+    document.getElementById("emergencyBtn").disabled = true;
+    document.getElementById("emergencyStatus").style.display = "block";
+    appendMessage("emergency-msg", "🚨 EMERGENCY TRIGGERED! Notifying available doctors...");
+}
+
+function acceptEmergency() {
+    if (!currentEmergency) return;
+    
+    ws.send(JSON.stringify({
+        type: "accept_emergency",
+        emergency_id: currentEmergency.emergency_id,
+        patient_id: currentEmergency.patient_id
+    }));
+    
+    // Update target to patient
+    TARGET_ID = currentEmergency.patient_id;
+    document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+    
+    closeEmergencyModal();
+    appendMessage("system-msg", `✅ You accepted the emergency. Now connected to ${TARGET_ID}.`);
+    
+    // Start call automatically
+    setTimeout(() => startCall(), 500);
+}
+
+function closeEmergencyModal() {
+    document.getElementById("emergencyModal").classList.remove("active");
+}
+
+// =========================
+// CHAT FUNCTIONS (Unchanged)
+// =========================
 
 function appendMessage(className, htmlContent) {
     const li = document.createElement("li");
@@ -402,7 +676,10 @@ async function handleBinary(data) {
     }
 }
 
-// --- CALL LOGIC ---
+// =========================
+// WEBRTC CALL LOGIC (Unchanged)
+// =========================
+
 async function startCall(){
     document.getElementById("callArea").style.display = "flex";
     localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
@@ -430,7 +707,7 @@ function handleHangup() {
     document.getElementById("callArea").style.display = "none";
     document.getElementById("localVideo").srcObject = null;
     document.getElementById("remoteVideo").srcObject = null;
-    appendMessage("them-msg", "<i>Call ended.</i>");
+    appendMessage("system-msg", "<i>Call ended.</i>");
 }
 
 async function createPeer(){
@@ -444,7 +721,10 @@ async function createPeer(){
     if(localStream) localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 }
 
-// --- TOOLS ---
+// =========================
+// TOOLS (Unchanged)
+// =========================
+
 const recordBtn=document.getElementById("recordBtn");
 recordBtn.onclick=async()=>{
     if(recordBtn.textContent.includes("Start")){

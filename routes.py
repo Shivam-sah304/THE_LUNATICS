@@ -362,6 +362,11 @@
 #         return redirect(url_for("routes.doctor_patient", phone=doctor.phone))
 
 #     return render_template("change_password.html")
+
+
+
+# ------
+
 from flask import Blueprint, render_template, request, redirect, session,url_for,flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -377,13 +382,13 @@ routes = Blueprint("routes", __name__)
 
 @routes.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("home.html")
 
 
 #endoet
-# @routes.route('/signin')
-# def signin():
-#     return render_template('index.html')
+@routes.route('/index')
+def index():
+    return render_template('index.html')
 
 @routes.route("/doctorregistration", methods=["GET", "POST"])
 def doctorregistration():
@@ -489,7 +494,7 @@ def doctorpassword():
         session["doctor_phone"] = doctor.phone 
 
         flash("Registration completed successfully!")
-        return redirect(url_for("routes.profileseenbydoctor"))
+        return redirect(url_for("routes.doctorlogin"))
 
     return render_template("doctorpassword.html")
 
@@ -546,10 +551,13 @@ def doctorlogin():
             flash("Invalid phone or password")
             return redirect(url_for('routes.doctorlogin'))
 
-        # ✅ Set session correctly BEFORE redirect
+        #  Set session correctly BEFORE redirect
         session["doctor_phone"] = user.phone
+        session['role'] = 'doctor'
+        
 
         return redirect(url_for('routes.profileseenbydoctor'))
+
 
     return render_template("doctorlogin.html")
 
@@ -624,9 +632,6 @@ def patient_password():
         return redirect(url_for("routes.patientlogin"))
 
     return render_template("patient_password.html")
-
-
-
 @routes.route("/patientlogin", methods=["GET", "POST"])
 def patientlogin():
     if request.method == "POST":
@@ -636,8 +641,10 @@ def patientlogin():
         user = Patient.query.filter_by(phone=phone).first()
 
         if user and check_password_hash(user.password, password):
+            session.permanent = True  # Make session permanent
             session["user_phone"] = user.phone
-            return redirect("/doctor_table")
+            session['role'] = 'patient'
+            return redirect(url_for("routes.doctor_table", user_id=user.phone))
         else:
             return render_template(
                 "patientlogin.html",
@@ -693,10 +700,11 @@ def doctor_patient(phone):
 @routes.route('/final/<phone>')
 @user_login_required
 def final(phone):
-    print(phone)
+    
     data = {
         "my_id": session.get('user_phone'),
-        "target_id": phone
+        "target_id": phone,
+        'role': session.get('role')
     }
     return render_template('final.html', data = data)
 
@@ -719,13 +727,13 @@ def edit_profile():
     doctor = Doctor.query.get_or_404(doctor_phone)
 
     if request.method == "POST":
-        doctor.name = request.form.get("name")
+        doctor.name = request.form.get("full_name")
         doctor.specialization = request.form.get("specialization")
-        doctor.facebook = request.form.get("facebook")
+        # doctor.facebook = request.form.get("facebook")
         doctor.desc = request.form.get("desc")
         # Add other fields if needed
         db.session.commit()
-        flash("Profile updated successfully.")
+        # flash("Profile updated successfully.")
         return redirect(url_for("routes.profileseenbydoctor", phone=doctor.phone))
 
     return render_template("edit_profile.html", doctor=doctor)
@@ -815,3 +823,11 @@ def drprofile(id):
     return render_template("doctor_patient.html",
                            doctor=doctor,
                            avg_rating=avg_rating)
+
+
+
+
+
+
+
+
