@@ -442,9 +442,7 @@
 </div>
 
 <script>
-// =========================
 // CONFIGURATION
-// =========================
 const MY_ID = "samir";
 const MY_ROLE = "patient"; // Change to "doctor" for doctor view
 let TARGET_ID = "sishir"; 
@@ -462,9 +460,7 @@ if (MY_ROLE === "patient") {
     document.getElementById("emergencyBtn").style.display = "flex";
 }
 
-// =========================
 // WEBSOCKET SETUP
-// =========================
 const ws = new WebSocket("ws://10.61.200.106:8080");
 let mediaRecorder, audioChunks = [];
 let pc, localStream;
@@ -485,7 +481,7 @@ ws.onmessage = async (event) => {
         try { msg = JSON.parse(event.data); } 
         catch { return; }
 
-        // ================= EMERGENCY HANDLING =================
+        //  EMERGENCY HANDLING 
         if (msg.type === "incoming_emergency" && MY_ROLE === "doctor") {
             // Show emergency modal for doctors
             currentEmergency = {
@@ -520,11 +516,11 @@ ws.onmessage = async (event) => {
                 currentEmergency = null;
             }
         }
-        // ================= REGULAR MESSAGES =================
+        //  REGULAR MESSAGES 
         else if (msg.type === "message") {
             appendMessage("them-msg", `<strong>${msg.from}:</strong> ${msg.message}`);
         }
-        // ================= WEBRTC =================
+        //  WEBRTC 
         else if (msg.type === "offer") {
             appendMessage("them-msg", "<i>Incoming call...</i>");
             document.getElementById("callArea").style.display = "flex";
@@ -548,9 +544,7 @@ ws.onmessage = async (event) => {
     }
 };
 
-// =========================
 // EMERGENCY FUNCTIONS
-// =========================
 
 function triggerEmergency() {
     if (emergencyAccepted) {
@@ -601,9 +595,7 @@ function closeEmergencyModal() {
     document.getElementById("emergencyModal").classList.remove("active");
 }
 
-// =========================
 // CHAT FUNCTIONS (Unchanged)
-// =========================
 
 function appendMessage(className, htmlContent) {
     const li = document.createElement("li");
@@ -672,9 +664,7 @@ async function handleBinary(data) {
     }
 }
 
-// =========================
 // WEBRTC CALL LOGIC (Unchanged)
-// =========================
 
 async function startCall(){
     document.getElementById("callArea").style.display = "flex";
@@ -717,9 +707,7 @@ async function createPeer(){
     if(localStream) localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
 }
 
-// =========================
 // TOOLS (Unchanged)
-// =========================
 
 const recordBtn=document.getElementById("recordBtn");
 recordBtn.onclick=async()=>{
