@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patients Directory</title>
+    <link rel="stylesheet" href="../static/doctorTable.css">
+</head>
+<body>
+
+    <div class="container">
+        <table class="dr-table">
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>Patient Name</th>
+                    <th>Contact</th>
+                    <th>Profile</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                <tr class="dr-row">
+                    <td>{{ loop.index }}</td>
+                    <td class="dr-name">{{ patient.name }}</td>
+                    <td>{{ patient.phone }}</td>
+                    <td>
+                        <div class="profile-wrapper">
+                            <a href="{{ url_for('routes.patient_doctor', phone=patient.phone) }}">Visit Profile</a>
+                            <div class="hover-preview">
+                                {% if patient.photo %}
+                                    <img
+                                        src="{{ url_for('static', filename=patient.photo) }}"
+                                        alt="Patient"
+                                        style="width:100px; height:100px; object-fit:cover; border-radius:50%;">
+                                {% else %}
+                                    <img
+                                        src="https://via.placeholder.com/100?text=No+User"
+                                        alt="No Photo"
+                                        style="width:100px; height:100px; object-fit:cover; border-radius:50%;">
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rows = document.querySelectorAll('.dr-row');
+            rows.forEach((row, i) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(10px)';
+                row.style.transition = 'all 0.4s ease';
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, i * 80);
+            });
+        });
+    </script>
+</body>
+</html>
