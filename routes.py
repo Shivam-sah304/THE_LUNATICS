@@ -6,7 +6,7 @@ import os
 from fillform import fillform
 from functools import wraps
 
-from models import db, Doctor
+from models import db, Doctor,Patient
 
 routes = Blueprint("routes", __name__)
 @routes.route("/")
@@ -75,7 +75,8 @@ def doctorvalidation():
 
         return redirect(url_for("routes.doctorpassword"))
 
-    return render_template("doctorvalidation.html")
+    # ✅ Pass temp_doctor to template
+    return render_template("doctorvalidation.html", temp_doctor=temp_doctor)
 
 # ---------------- Doctor Password ----------------
 @routes.route("/doctor/doctorpassword", methods=["GET", "POST"])
@@ -112,10 +113,13 @@ def doctorpassword():
         db.session.commit()
 
         # Clear session completely
-        session.pop("temp_doctor", None)
+        # session.pop("temp_doctor", None)
+        # # session["doctor_phone"] = doctor_p
+        session.pop("doctor_phone", None)
+        session["doctor_phone"] = doctor.phone 
 
         flash("Registration completed successfully!")
-        return redirect(url_for("routes.home"))
+        return redirect(url_for("routes.profileseenbydoctor"))
 
     return render_template("doctorpassword.html")
 
@@ -144,26 +148,53 @@ def doctorpassword():
 #     return render_template("doctorlogin.html")
 
 
-@routes.route('/doctorlogin', methods=["POST","GET"])
+@routes.route('/profileseenbydoctor', methods=['GET', 'POST'])
+def profileseenbydoctor():
+    # Debug: print session contents
+    print("Session data:", session)
+
+    # Get the doctor's phone from session
+    doctor_phone = session.get("doctor_phone")
+    if not doctor_phone:
+        # If no session, redirect to login
+        flash("Please log in first.")
+        return redirect(url_for('routes.doctorlogin'))
+
+    # Query the doctor using phone (primary key)
+    doctor = Doctor.query.filter_by(phone=doctor_phone).first()
+    if not doctor:
+        # If doctor not found in DB
+        flash("Doctor not found in the database.")
+        return redirect(url_for('routes.doctorlogin'))
+
+    # Pass the doctor object to template
+    return render_template('profileseenbydoctor.html', doctor=doctor)
+
+
+
+
+
+@routes.route('/doctorlogin', methods=["POST", "GET"])
 def doctorlogin():
-    if request.method=="POST":
+    if request.method == "POST":
         phone = request.form.get('phone')
         password = request.form.get('password')
 
         user = Doctor.query.filter_by(phone=phone).first()
-        if user == None:
-            return 'Cant login'
-       
-        if check_password_hash(user.password, password):
-            session["user_id"] = user.phone
-            return redirect(url_for('routes.home'))
-        else:
-            return "Invalid phone or password"  
+        if not user:
+            flash("User not found")
+            return redirect(url_for('routes.doctorlogin'))
+
+        if not check_password_hash(user.password, password):
+            flash("Invalid phone or password")
+            return redirect(url_for('routes.doctorlogin'))
+
+        # ✅ Set session correctly BEFORE redirect
+        session["doctor_phone"] = user.phone
+
+        return redirect(url_for('routes.profileseenbydoctor'))
+
     return render_template("doctorlogin.html")
-    
-
-
-
 # def login_required(f):
 #     @wraps(f)
 #     def decorated_function(*args, **kwargs):
@@ -171,3 +202,93 @@ def doctorlogin():
 #             return redirect(url_for("routes.doctorvalidation"))  # redirect to login if not logged in
 #         return f(*args, **kwargs)
 #     return decorated_function
+#prersonal
+# Step 1: Register patient
+@routes.route("/patient/patient_register", methods=["GET", "POST"])
+def patient_register():
+    if request.method == "POST":
+        patient = Patient(
+            name=request.form["full_name"],
+            phone=request.form["phone"],
+            email=request.form["email"],
+            desc=request.form["problem"],
+            tem_address=request.form["temporary_address"],
+            per_address=request.form["permanent_address"]
+        )
+        db.session.add(patient)
+        db.session.commit()  # assign patient.id but do not commit 
+        session["patient_id"] = patient.id
+        return redirect(url_for("routes.patient_contact"))
+
+    return render_template("patient_register.html")
+
+
+# Step 2: Contact person
+@routes.route("/patient/patient_contact", methods=["GET", "POST"])
+def patient_contact():
+    patient_id = session.get("patient_id")
+    if not patient_id:
+        return redirect(url_for("routes.patient_register"))
+
+    patient = Patient.query.get_or_404(patient_id)
+
+    if request.method == "POST":
+        patient.num1 = request.form["contact1_phone"]
+        patient.closed_person1 = request.form["contact1_name"]
+        patient.relation1 = request.form["contact1_relation"]
+        patient.num2 = request.form["contact2_phone"]
+        patient.closed_person2 = request.form["contact2_name"]
+        patient.relation2 = request.form["contact2_relation"]
+        patient.num3 = request.form["contact3_phone"]
+        patient.relation3 = request.form["contact3_relation"]
+        patient.closed_person3 = request.form["contact3_name"]
+
+        db.session.commit()
+        return redirect(url_for("routes.patient_password"))
+
+    return render_template("patient_contact.html")
+
+
+# Step 3: Set password
+@routes.route("/patient/patient_password", methods=["GET", "POST"])
+def patient_password():
+    patient_id = session.get("patient_id")
+    if not patient_id:
+        return redirect(url_for("routes.patient_register"))
+
+    patient = Patient.query.get_or_404(patient_id)
+
+    if request.method == "POST":
+        raw_password = request.form.get("password")
+        if not raw_password or raw_password.strip() == "":
+            return "Password is required", 400
+
+        # Hash the password and save
+        patient.password = generate_password_hash(raw_password)
+        db.session.commit()
+
+        # Clear session
+        session.pop("patient_id", None)
+
+        return redirect(url_for("routes.home"))
+
+    return render_template("patient_password.html")
+@routes.route("/patientlogin", methods=["GET", "POST"])
+
+def patientlogin():
+    if request.method == "POST":
+        phone = request.form["phone"]
+        password = request.form["password"]
+
+        user = Patient.query.filter_by(phone=phone).first()
+
+        if user and check_password_hash(user.password, password):
+            session["user_id"] = user.id
+            return redirect("/doctor_table")
+        else:
+            return render_template(
+                "patientlogin.html",
+                message="Invalid email or password"
+            )
+
+    return render_template("patientlogin.html")

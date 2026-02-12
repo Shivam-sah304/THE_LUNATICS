@@ -38,55 +38,51 @@
       </div>
 
       <div class="profile-photo">
-          <div class="photo-wrapper">
-              <img src="{{ doctor.photo }}" alt="Photo of {{ doctor.name }}">
-              <!-- {% if doctor.status == 1 %} -->
-              <!-- <span class="status-dot"></span> --> <!-- status column not in table -->
-              <!-- {% endif %} -->
-          </div>
+    <div class="photo-wrapper">
+        <img src="{{ url_for('static', filename=doctor.photo) }}" alt="Photo of {{ doctor.name }}">
+        {% if doctor.status == 1 %}
+            <span class="status-dot"></span>
+        {% endif %}
+    </div>
+</div>
+
 
           <h1 class="doctor-name">{{ doctor.name }}</h1>
-          
-          <!-- Rating display not available in table -->
-          <!-- <div class="Doctor-rating-display">
-              {% for i in range(1, 6) %}
-                  <i class="fas fa-star {% if i <= doctor.rating %}gold{% endif %}"></i>
-              {% endfor %}
-          </div> -->
-
           <p class="doctor-specialty">{{ doctor.specialization }}</p>
       </div>
 
-      <!-- Report form -->
-      <!-- <div id="reportInline" class="expand-section">
+      <!-- Report Form -->
+      <!--
+      <div id="reportInline" class="expand-section">
           <form action="/submit_report" method="POST">
               <h4>Report Doctor</h4>
-              <input type="hidden" name="doctor_id" value="{{ doctor.phone }}">
+              <input type="hidden" name="doctor_phone" value="{{ doctor.phone }}">
               <textarea name="report_text" placeholder="Reason for reporting..." required></textarea>
               <button type="submit" class="submit-btn report-red">Submit Report</button>
           </form>
-      </div> -->
+      </div>
+      -->
 
-      <!-- Rating form -->
-      <!-- <div id="ratingInline" class="expand-section">
+      <!-- Rating Form -->
+      <!--
+      <div id="ratingInline" class="expand-section">
           <form action="/submit_rating" method="POST">
               <h4>Rate Your Experience</h4>
               <input type="hidden" name="star_rating" id="starInput" value="0">
-              <input type="hidden" name="doctor_id" value="{{ doctor.phone }}">
-
+              <input type="hidden" name="doctor_phone" value="{{ doctor.phone }}">
               <div class="star-box" id="starContainer">
                   <i class="fas fa-star" data-v="1"></i>
                   <i class="fas fa-star" data-v="2"></i>
                   <i class="fas fa-star" data-v="3"></i>
                   <i class="fas fa-star" data-v="4"></i>
                   <i class="fas fa-star" data-v="5"></i>
-              </div> -->
+              </div>
               <p style="font-size: 11px; color: #777; margin-bottom: 5px;">Share your experience (Optional):</p>
               <textarea name="review_text" placeholder="Tell us more about your visit..."></textarea>
-              
               <button type="submit" class="submit-btn rating-blue">Submit Rating</button>
           </form>
       </div>
+      -->
 
     </section>
 
@@ -98,9 +94,8 @@
     <section class="contact-section">
       <h2>Contact Me</h2>
       <div class="contact-icons">
-          <!-- Facebook & WhatsApp not in table, commented -->
-          <!-- <a href="{{ doctor.facebook }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a> -->
-          <!-- <a href="https://wa.me/{{ doctor.whatsapp }}" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a> -->
+          <a href="{{ doctor.facebook }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://wa.me/{{ doctor.phone }}" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
       </div>
     </section>
 
@@ -111,6 +106,7 @@
     const dropMenu = document.getElementById('dropMenu');
     const starInput = document.getElementById('starInput');
 
+    // Toggle Dropdown
     menuBtn.onclick = (e) => {
         e.stopPropagation();
         dropMenu.classList.toggle('active');
@@ -130,17 +126,21 @@
         document.getElementById(id).classList.toggle('active');
     }
 
-    const stars = document.querySelectorAll('#starContainer i');
-    stars.forEach(star => {
-        star.onclick = () => {
-            const val = star.getAttribute('data-v');
-            starInput.value = val;
-            stars.forEach(s => {
-                s.classList.toggle('gold', s.getAttribute('data-v') <= val);
-            });
-        };
-    });
+    // Star Interaction (if you enable rating form)
+    if(starInput) {
+        const stars = document.querySelectorAll('#starContainer i');
+        stars.forEach(star => {
+            star.onclick = () => {
+                const val = star.getAttribute('data-v');
+                starInput.value = val;
+                stars.forEach(s => {
+                    s.classList.toggle('gold', s.getAttribute('data-v') <= val);
+                });
+            };
+        });
+    }
 
+    // Outside click closes menu
     window.onclick = function(event) {
         if (!event.target.closest('.menu-container')) {
             dropMenu.classList.remove('active');
