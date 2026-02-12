@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>0
+<head>
   <meta charset="UTF-8">
-  <title>Doctor Profile</title>
+  <title>Patient Profile</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="../static/profileseenbydoctor.css">
+  <link rel="stylesheet" href="../static/PATIENTPROFILE.css">
 </head>
 <body>
 
@@ -44,22 +44,27 @@
 
  <div class="profile-photo">
     <div class="photo-wrapper">
-        <img src="{{ doctor.photo }}" alt="Photo of {{ doctor.name }}">
+        <img src="{{ patient.photo }}" alt="Photo of {{ patient.name }}">
         
-        {% if doctor.status == 1 %}
+        {% if patient.status == 1 %}
             <span class="status-dot"></span>
         {% endif %}
     </div>
 
-    <h1 class="doctor-name">{{ doctor.name }}</h1>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
+        <h1 class="doctor-name" style="margin-bottom: 0;">{{ patient.name }}</h1>
+        <button class="msg-btn" onclick="location.href='/message/{{ patient.id }}'">
+            <i class="fas fa-envelope"></i> Message
+        </button>
+    </div>
     
     <div class="Doctor-rating-display">
         {% for i in range(1, 6) %}
-            <i class="fas fa-star {% if i <= doctor.rating %}gold{% endif %}"></i>
+            <i class="fas fa-star {% if i <= patient.rating %}gold{% endif %}"></i>
         {% endfor %}
     </div>
 
-    <p class="doctor-specialty">{{ doctor.specialty }}</p>
+    <p class="doctor-specialty">{{ patient.specialty }}</p>
 </div>
 
 <div id="ratingInline" class="expand-section">
@@ -67,7 +72,7 @@
               <h4>Rate Your Experience</h4>
               
               <input type="hidden" name="star_rating" id="starInput" value="0">
-              <input type="hidden" name="doctor_id" value="{{ doctor.id }}">
+              <input type="hidden" name="patient_id" value="{{ patient.id }}">
 
               <div class="star-box" id="starContainer">
                   <i class="fas fa-star" data-v="1"></i>
@@ -88,14 +93,14 @@
 
     <section class="about-section">
       <h2>About Me</h2>
-      <p>{{ doctor.about }}</p>
+      <p>{{ patient.about }}</p>
     </section>
 
     <section class="contact-section">
       <h2>Contact Me</h2>
       <div class="contact-icons">
-        <a href="{{ doctor.facebook }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://wa.me/{{ doctor.whatsapp }}" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="{{ patient.facebook }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://wa.me/{{ patient.whatsapp }}" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
       </div>
     </section>
 
@@ -120,7 +125,6 @@
     const starInput = document.getElementById('starInput');
     const logoutPopup = document.getElementById('logoutPopup');
 
-    // Toggle Dropdown
     menuBtn.onclick = (e) => {
         e.stopPropagation();
         dropMenu.classList.toggle('active');
@@ -132,7 +136,6 @@
         subMenu.classList.toggle("active");
     }
 
-    // Popup Logic
     function showLogoutPopup() {
         dropMenu.classList.remove('active');
         logoutPopup.classList.add('show');
@@ -142,7 +145,6 @@
         logoutPopup.classList.remove('show');
     }
 
-    // Star Interaction
     const stars = document.querySelectorAll('#starContainer i');
     stars.forEach(star => {
         star.onclick = () => {
@@ -154,7 +156,6 @@
         };
     });
 
-    // Outside click closes menu and popup
     window.onclick = function(event) {
         if (event.target === logoutPopup) {
             closeLogoutPopup();

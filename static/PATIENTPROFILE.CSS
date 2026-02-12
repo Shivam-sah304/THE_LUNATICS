@@ -32,7 +32,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.08);
   margin-bottom: 20px;
-  position: relative; /* Necessary for menu positioning */
+  position: relative;
   opacity: 0;
   transform: translateY(20px);
   animation: fadeInUp 0.8s forwards;
@@ -56,25 +56,26 @@ body {
 .menu-dots span {
   width: 18px;
   height: 2.5px;
-  background: #444; /* Greyish Black */
+  background: #444; 
   border-radius: 5px;
 }
 
 .dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0; /* Aligns to right, grows left */
-  top: 30px;
-  background: white;
-  min-width: 150px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  border-radius: 8px;
-  z-index: 100;
-  border: 1px solid #eee;
-  overflow: hidden;
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background: white;
+    min-width: 180px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    z-index: 100;
+    border: 1px solid #eee;
 }
 
-.dropdown-content.active { display: block; }
+.dropdown-content.active {
+    display: block;
+}
 
 .dropdown-content button {
   width: 100%;
@@ -144,14 +145,12 @@ textarea {
 
 /* --- RESTORED ORIGINAL STYLES --- */
 .profile-photo img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 4px solid #2563eb;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto 10px;
-  transition: transform 0.3s, box-shadow 0.3s;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 4px solid #2563eb;
+    object-fit: cover;
+    display: block;
 }
 
 .profile-photo img:hover {
@@ -197,7 +196,97 @@ textarea {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@media(max-width: 600px) {
-  .profile-card { padding: 25px 15px; }
-  .profile-photo img { width: 120px; height: 120px; }
+.Doctor-rating-display {
+    margin-top: 8px;
+    font-size: 16px;
+    color: #cbd5e0; 
+}
+
+.Doctor-rating-display .fas.gold {
+    color: #f6ad55; 
+}
+
+.sub-menu {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden; 
+    transition: max-height 0.4s ease, opacity 0.3s ease;
+    background: #f9f9f9;
+}
+.sub-menu.active {
+    max-height: 150px; 
+    opacity: 1;
+}
+.sub-menu button {
+  padding-left: 35px !important;
+  font-size: 13px !important;
+  color: #666 !important;
+}
+
+.photo-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 10px; 
+    right: 10px; 
+    width: 18px;
+    height: 18px;
+    background-color: #2ecc71; 
+    border: 3px solid #ffffff; 
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* --- LOGOUT POPUP & MESSAGE BTN --- */
+
+.msg-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px; 
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.popup-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 9999; visibility: hidden; opacity: 0; transition: all 0.3s ease;
+}
+.popup-overlay.show { visibility: visible; opacity: 1; }
+.popup-content {
+    background: white; padding: 25px; border-radius: 12px; width: 85%;
+    max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transform: scale(0.8); transition: transform 0.3s ease;
+}
+.popup-overlay.show .popup-content { transform: scale(1); }
+.popup-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+.btn-no { background: #edf2f7; color: #4a5568; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; flex: 1; }
+.btn-yes { background: #e53e3e; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; flex: 1; }
+
+
+/* --- CENTER ALIGNMENT FOR PICTURE --- */
+.profile-photo {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+.photo-wrapper {
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+.profile-photo img {
+    margin: 0 auto !important;
+    display: block !important;
 }

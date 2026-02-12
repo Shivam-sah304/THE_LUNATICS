@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctors Directory</title>
+    <link rel="stylesheet" href="..\static\patientlist.css">
+</head>
+<body>
+
+    <div class="container">
+        <table class="dr-table">
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>Doctors Name</th>
+                    
+                    <th>Contact</th>
+                    <th>Profile</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doctor in doctors %}
+                <tr class="dr-row">
+                    <td>{{ loop.index }}</td>
+                    <td class="dr-name">{{ doctor.name }}</td>
+                    
+                    <td>{{ doctor.phone }}</td>
+                    <td>
+                        <div class="profile-wrapper">
+                            <a href="{{ url_for('routes.drprofile', id=doctor.id) }}">Visit Profile</a>
+<!-- here replace the img src by doctor photo coming from backend -->
+                            <div class="hover-preview">
+    <img src="{{ url_for('static', filename=doctor.photo) }}"
+     alt="Doctor"
+     onerror="this.onerror=null; this.src='https://via.placeholder.com/100?text=No+User';"
+     style="width:100px; height:100px; object-fit:cover; border-radius:50%;">
+</div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rows = document.querySelectorAll('.dr-row');
+            rows.forEach((row, i) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateY(10px)';
+                row.style.transition = 'all 0.4s ease';
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, i * 80);
+            });
+        });
+    </script>
+</body>
+</html>
