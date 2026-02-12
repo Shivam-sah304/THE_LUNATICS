@@ -1,295 +1,778 @@
-<!-- <!DOCTYPE html>
-<html>
+<!--final with emergency-->
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>WebSocket + WebRTC Multi-Media Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE LUNATIC - Messenger</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0084ff;
+            --bg-chat: #ffffff;
+            --bg-side: #f5f7f9;
+            --text-main: #050505;
+            --bubble-own: #0084ff;
+            --bubble-them: #e4e6eb;
+            --border: #dee2e6;
+            --danger: #ff4444;
+            --emergency: #dc2626;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Messenger Container */
+        .messenger-app {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            background: var(--bg-chat);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 360px;
+            background: var(--bg-side);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .profile-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+        }
+
+        /* Chat Window */
+        .chat-window {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            list-style: none;
+            background: white;
+            margin: 0;
+        }
+
+        #chat li {
+            max-width: 60%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        #chat li.own-msg {
+            align-self: flex-end;
+            background: var(--bubble-own);
+            color: white;
+        }
+
+        #chat li.them-msg {
+            align-self: flex-start;
+            background: var(--bubble-them);
+            color: var(--text-main);
+        }
+
+        #chat li.system-msg {
+            align-self: center;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            font-size: 0.85rem;
+            max-width: 80%;
+        }
+
+        #chat li.emergency-msg {
+            align-self: center;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid var(--emergency);
+            font-weight: 600;
+            max-width: 80%;
+        }
+
+        /* Video Call Section */
+        .call-area {
+            padding: 15px;
+            background: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .video-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        video {
+            background: #242526;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: #f0f2f5;
+            outline: none;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.1s;
+        }
+
+        .icon-btn:active { transform: scale(0.9); }
+
+        .end-call-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-grid {
+            display: flex;
+            gap: 25px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--border);
+            justify-content: flex-start;
+        }
+
+        .file-grid input { display: none; }
+        
+        .file-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #65676b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.2s;
+            width: 50px;
+            white-space: nowrap;
+        }
+
+        .file-label:hover {
+            color: var(--primary);
+        }
+
+        /* Colourful Icons */
+        .icon-image { color: #45bd62; }
+        .icon-video { color: #f3425f; }
+        .icon-pdf { color: #f02849; }
+        .icon-camera { color: #1877f2; }
+
+        /* Emergency Button */
+        .emergency-btn {
+            background: var(--emergency);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+
+        .emergency-btn:hover {
+            background: #b91c1c;
+        }
+
+        .emergency-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Emergency Modal */
+        .emergency-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .emergency-modal.active {
+            display: flex;
+        }
+
+        .emergency-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .emergency-content h3 {
+            color: var(--emergency);
+            margin-top: 0;
+        }
+
+        .doctor-list {
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .doctor-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accept-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+    </style>
 </head>
 <body>
 
-<h2>Multi-Media Chat + Real-Time Call</h2>
+<div class="messenger-app">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2 style="margin-top:0">Chats</h2>
+            <div class="profile-card">
+                <small style="color:#65676b">Connected as:</small><br>
+                <strong><span id="myIdDisplay">...</span></strong>
+                <div style="margin-top: 5px; font-size: 0.85rem; color: #666;">
+                    Role: <span id="myRoleDisplay">...</span>
+                </div>
+            </div>
+            <div class="profile-card">
+                <small style="color:#65676b">Chatting with:</small><br>
+                <strong><span id="targetIdDisplay">...</span></strong>
+            </div>
+            
+            <!-- Emergency Button for Patients -->
+            <button id="emergencyBtn" class="emergency-btn" style="display: none;" onclick="triggerEmergency()">
+                <i class="fas fa-exclamation-triangle"></i> EMERGENCY
+            </button>
+            
+            <!-- Emergency Status for Patients -->
+            <div id="emergencyStatus" style="display: none; margin-top: 10px; padding: 10px; background: #fee2e2; border-radius: 8px; font-size: 0.85rem; color: #991b1b;">
+                <i class="fas fa-spinner fa-spin"></i> Waiting for doctor...
+            </div>
+        </div>
+        
+        <div style="padding: 20px;">
+            <p style="color: #65676b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tools</p>
+            <button id="recordBtn" class="icon-btn" style="font-size: 0.9rem; border: 1px solid var(--border); border-radius: 8px; padding: 10px; width: 100%; margin-bottom: 10px; background: white; text-align: left;">
+                <i class="fas fa-microphone" style="margin-right:8px"></i> Start Recording
+            </button>
+            <button id="sendVoiceBtn" onclick="sendVoice()" disabled class="icon-btn" style="font-size: 0.9rem; border: 1px solid var(--border); border-radius: 8px; padding: 10px; width: 100%; background: white; text-align: left;">
+                <i class="fas fa-paper-plane" style="margin-right:8px"></i> Send Voice
+            </button>
+        </div>
+    </div>
 
-<!--  CHAT SECTION  -->
-<div>
-  <h3>Text & File Chat</h3>
+    <div class="chat-window">
+        <div class="chat-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; background: linear-gradient(45deg, #0084ff, #00c6ff); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <i class="fas fa-user"></i>
+                </div>
+                <strong>Direct Message</strong>
+            </div>
+            <button onclick="startCall()" class="icon-btn" style="font-size: 1.4rem;"><i class="fas fa-video"></i></button>
+        </div>
 
-  <!-- Text message -->
-  <input id="msgInput" type="text" placeholder="Type message..." />
-  <button onclick="sendText()">Send Text</button>
-  <br><br>
+        <ul id="chat"></ul>
 
-  <!-- Image -->
-  <input id="imgInput" type="file" accept="image/*" />
-  <button onclick="sendImage()">Send Image</button>
-  <br><br>
+        <div class="call-area" id="callArea" style="display:none;">
+            <div class="video-container">
+                <video id="localVideo" autoplay muted playsinline width="160"></video>
+                <video id="remoteVideo" autoplay playsinline width="320"></video>
+            </div>
+            <button class="end-call-btn" onclick="endCall()">
+                <i class="fas fa-phone-slash"></i> End Call
+            </button>
+        </div>
 
-  <!-- Video file -->
-  <input id="videoInput" type="file" accept="video/*" />
-  <button onclick="sendVideo()">Send Video</button>
-  <br><br>
-
-  <!-- PDF file -->
-  <input id="pdfInput" type="file" accept="application/pdf" />
-  <button onclick="sendPDF()">Send PDF</button>
-  <br><br>
-
-  <!-- Camera photo -->
-  <button onclick="takePhoto()">Take Photo</button>
-  <video id="cameraPreview" width="200" autoplay style="display:none;"></video>
-  <br><br>
-
-  <!-- Voice recording -->
-  <button id="recordBtn">Start Recording</button>
-  <button onclick="sendVoice()" id="sendVoiceBtn" disabled>Send Voice</button>
-  <br><br>
-
-  <!-- profile-->
-  <button id="profile">profilecall</button>
-  <button onclick="sendspecific()" id="profile" disabled>Send specific</button>
-  <br><br>
-
-
-  <ul id="chat"></ul>
+        <div class="input-area">
+            <div class="input-row">
+                <button class="icon-btn icon-camera" onclick="takePhoto()"><i class="fas fa-camera"></i></button>
+                <input id="msgInput" type="text" placeholder="Aa" onkeypress="if(event.key==='Enter') sendText()">
+                <button class="icon-btn" onclick="sendText()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            
+            <div class="file-grid">
+                <label class="file-label">
+                    <i class="fas fa-image fa-2x icon-image"></i>
+                    <span>Image</span>
+                    <input id="imgInput" type="file" accept="image/*" onchange="sendFile('imgInput','image')">
+                </label>
+                <label class="file-label">
+                    <i class="fas fa-file-video fa-2x icon-video"></i>
+                    <span>Video</span>
+                    <input id="videoInput" type="file" accept="video/*" onchange="sendFile('videoInput','video')">
+                </label>
+                <label class="file-label">
+                    <i class="fas fa-file-pdf fa-2x icon-pdf"></i>
+                    <span>PDF</span>
+                    <input id="pdfInput" type="file" accept="application/pdf" onchange="sendFile('pdfInput','PDF')">
+                </label>
+                <video id="cameraPreview" width="100" autoplay style="display:none; border-radius:5px;"></video>
+            </div>
+        </div>
+    </div>
 </div>
 
-<hr>
-
-<!--  VIDEO CALL SECTION -->
-<div>
-  <h3>Video + Voice Call</h3>
-  <button onclick="startCall()">Start Call</button>
-  <br><br>
-
-  <video id="localVideo" autoplay muted playsinline width="200"></video>
-  <video id="remoteVideo" autoplay playsinline width="200"></video>
+<!-- Emergency Modal for Doctors -->
+<div id="emergencyModal" class="emergency-modal">
+    <div class="emergency-content">
+        <h3><i class="fas fa-exclamation-triangle"></i> INCOMING EMERGENCY</h3>
+        <p>Patient <strong id="emergencyPatient">...</strong> needs immediate assistance!</p>
+        <div class="doctor-list">
+            <div style="padding: 15px; background: #fef3c7; border-radius: 8px; margin-bottom: 15px;">
+                <i class="fas fa-clock pulse"></i> Respond quickly to accept this emergency
+            </div>
+        </div>
+        <button class="accept-btn" onclick="acceptEmergency()" style="padding: 12px 30px; font-size: 1rem;">
+            <i class="fas fa-check"></i> ACCEPT EMERGENCY
+        </button>
+        <button onclick="closeEmergencyModal()" style="background: none; border: none; color: #666; margin-top: 10px; cursor: pointer;">
+            Dismiss
+        </button>
+    </div>
 </div>
 
 <script>
-/*  WEBSOCKET CHAT  */
-const ws = new WebSocket("ws://10.61.200.106:8080"); // change IP to your server
-let mediaRecorder;
-let audioChunks = [];
+// =========================
+// CONFIGURATION
+// =========================
+const MY_ID = "samir";
+const MY_ROLE = "patient"; // Change to "doctor" for doctor view
+let TARGET_ID = "sishir"; 
 
-ws.onopen = () => console.log("Connected to WebSocket server");
+// Emergency state
+let currentEmergency = null;
+let emergencyAccepted = false;
+
+document.getElementById("myIdDisplay").textContent = MY_ID;
+document.getElementById("myRoleDisplay").textContent = MY_ROLE;
+document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+
+// Show emergency button only for patients
+if (MY_ROLE === "patient") {
+    document.getElementById("emergencyBtn").style.display = "flex";
+}
+
+// =========================
+// WEBSOCKET SETUP
+// =========================
+const ws = new WebSocket("ws://10.61.200.106:8080");
+let mediaRecorder, audioChunks = [];
+let pc, localStream;
+const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
 ws.onopen = () => {
-    ws.send(JSON.stringify({
-        type: "auth",
-        user_id: "samir dai"
+    // Send auth with role
+    ws.send(JSON.stringify({ 
+        type: "auth", 
+        user_id: MY_ID,
+        role: MY_ROLE 
     }));
 };
-
 
 ws.onmessage = async (event) => {
-    // If it's a string, it might be WebRTC signaling or chat
     if (typeof event.data === "string") {
-        let isSignaling = false;
-        try {
-            const msg = JSON.parse(event.data);
+        let msg;
+        try { msg = JSON.parse(event.data); } 
+        catch { return; }
 
-            // If message has WebRTC keys, it's internal signaling — ignore it in chat
-            if (msg.type === "offer" || msg.type === "answer" || msg.type === "ice") {
-                isSignaling = true; // mark as signaling
+        // ================= EMERGENCY HANDLING =================
+        if (msg.type === "incoming_emergency" && MY_ROLE === "doctor") {
+            // Show emergency modal for doctors
+            currentEmergency = {
+                emergency_id: msg.emergency_id,
+                patient_id: msg.from
+            };
+            document.getElementById("emergencyPatient").textContent = msg.from;
+            document.getElementById("emergencyModal").classList.add("active");
+            
+            // Play alert sound (optional)
+            appendMessage("emergency-msg", `🚨 INCOMING EMERGENCY from ${msg.from}!`);
+        }
+        else if (msg.type === "emergency_accepted" && MY_ROLE === "patient") {
+            // Patient's emergency was accepted
+            emergencyAccepted = true;
+            document.getElementById("emergencyStatus").innerHTML = 
+                `<i class="fas fa-check-circle"></i> Dr. ${msg.doctor} accepted! Connecting...`;
+            document.getElementById("emergencyStatus").style.background = "#d1fae5";
+            document.getElementById("emergencyStatus").style.color = "#065f46";
+            
+            appendMessage("system-msg", `✅ Emergency accepted by Dr. ${msg.doctor}. You can now communicate.`);
+            
+            // Auto-update target to doctor for direct communication
+            TARGET_ID = msg.doctor;
+            document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+        }
+        else if (msg.type === "emergency_cancelled" && MY_ROLE === "doctor") {
+            // Another doctor accepted, remove from this doctor's view
+            if (currentEmergency && currentEmergency.emergency_id === msg.emergency_id) {
+                closeEmergencyModal();
+                appendMessage("system-msg", "This emergency was handled by another doctor.");
+                currentEmergency = null;
             }
-        } catch {
-            // Not JSON, so plain chat text
         }
-
-        if (isSignaling) return; // Do NOT display SDP or ICE info
-
-        // Display plain text messages
-        const li = document.createElement("li");
-        li.textContent = "Received: " + event.data;
-        document.getElementById("chat").appendChild(li);
-
+        // ================= REGULAR MESSAGES =================
+        else if (msg.type === "message") {
+            appendMessage("them-msg", `<strong>${msg.from}:</strong> ${msg.message}`);
+        }
+        // ================= WEBRTC =================
+        else if (msg.type === "offer") {
+            appendMessage("them-msg", "<i>Incoming call...</i>");
+            document.getElementById("callArea").style.display = "flex";
+            await createPeer();
+            await pc.setRemoteDescription(msg.offer);
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            ws.send(JSON.stringify({ type: "answer", from: MY_ID, to: TARGET_ID, answer: answer }));
+        }
+        else if (msg.type === "answer") { 
+            await pc.setRemoteDescription(msg.answer); 
+        }
+        else if (msg.type === "ice") { 
+            if(pc) await pc.addIceCandidate(msg.candidate); 
+        }
+        else if (msg.type === "hangup") { 
+            handleHangup(); 
+        }
     } else {
-        // Binary data (images, audio, video, PDF) — always display
-        const arrayBuffer = await event.data.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-
-        // Detect type (same logic as before)
-        const header = uint8Array.slice(0, 4);
-        let fileType = "unknown";
-
-        if (header[0] === 0xFF && header[1] === 0xD8) fileType = "image/jpeg";
-        else if (header[0] === 0x89 && header[1] === 0x50) fileType = "image/png";
-        else if (header[0] === 0x25 && header[1] === 0x50) fileType = "application/pdf";
-        else if (header[0] === 0x52 && header[1] === 0x49 && header[2] === 0x46 && header[3] === 0x46) fileType = "audio/wav";
-        else if (header[0] === 0x49 && header[1] === 0x44 && header[2] === 0x33) fileType = "audio/mpeg";
-        else if (header[0] === 0x1A && header[1] === 0x45 && header[2] === 0xDF && header[3] === 0xA3) fileType = "audio/webm";
-        else if (header[0] === 0x00 && header[1] === 0x00 && header[2] === 0x00) fileType = "video/mp4";
-
-        const blob = new Blob([arrayBuffer], { type: fileType });
-        const url = URL.createObjectURL(blob);
-
-        const li = document.createElement("li");
-        if (fileType.startsWith("image")) {
-            li.textContent = "Received Image:";
-            const img = document.createElement("img");
-            img.src = url; img.style.maxWidth = "200px"; li.appendChild(img);
-        } else if (fileType.startsWith("video")) {
-            li.textContent = "Received Video:";
-            const video = document.createElement("video");
-            video.src = url; video.controls = true; video.style.maxWidth = "300px"; li.appendChild(video);
-        } else if (fileType.startsWith("audio")) {
-            li.textContent = "Received Audio:";
-            const audio = document.createElement("audio");
-            audio.src = url; audio.controls = true; li.appendChild(audio);
-        } else if (fileType === "application/pdf") {
-            li.textContent = "Received PDF:";
-            const a = document.createElement("a");
-            a.href = url; a.target = "_blank"; a.textContent = "View PDF"; li.appendChild(a);
-        } else {
-            li.textContent = "Received unknown file:";
-            const a = document.createElement("a");
-            a.href = url; a.download = "file.bin"; a.textContent = "Download Unknown File"; li.appendChild(a);
-        }
-
-        document.getElementById("chat").appendChild(li);
+        handleBinary(event.data);
     }
 };
 
-//send to specific profile
+// =========================
+// EMERGENCY FUNCTIONS
+// =========================
 
-function sendspecific(){
-   ws.send(JSON.stringify({
-        type: "auth",
-        user_id: "samirdai"
-    }));
-}
-   
-
-//  TEXT & FILE SENDING 
-function sendText(){
-  const input=document.getElementById("msgInput");
-  const msg=input.value.trim();
-  if(!msg) return;
-  ws.send(JSON.stringify({
-    type : "send",
-    to: "samirdai",
-    message: msg
-  }));  
-  const li=document.createElement("li");
-  li.textContent="You: "+msg;
-  document.getElementById("chat").appendChild(li);
-  input.value="";
-}
-
-function sendFile(id,label){
-  const fileInput=document.getElementById(id);
-  const file=fileInput.files[0];
-  if(!file) return alert(`Select a ${label} first!`);
-  const reader=new FileReader();
-  reader.onload=()=>ws.send(JSON.stringify({
-  type : "send",
-  to: "samirdai",
-  message: reader.result
-  }));
-  reader.onloadend=()=>{
-    const li=document.createElement("li");
-    li.textContent=`You sent ${label}:`;
-    const url=URL.createObjectURL(file);
-    if(file.type.startsWith("image")){
-      const img=document.createElement("img"); img.src=url; img.style.maxWidth="200px"; li.appendChild(img);
-    } else if(file.type.startsWith("video")){
-      const video=document.createElement("video"); video.src=url; video.controls=true; video.style.maxWidth="300px"; li.appendChild(video);
-    } else if(file.type==="application/pdf"){
-      const a=document.createElement("a"); a.href=url; a.textContent="View PDF"; a.target="_blank"; li.appendChild(a);
+function triggerEmergency() {
+    if (emergencyAccepted) {
+        appendMessage("system-msg", "Emergency already active. Use regular chat or call.");
+        return;
     }
-    document.getElementById("chat").appendChild(li);
-  };
-  reader.readAsArrayBuffer(file);
-  fileInput.value="";
+    
+    const emergencyId = "EMRG_" + Date.now() + "_" + MY_ID;
+    currentEmergency = {
+        emergency_id: emergencyId,
+        patient_id: MY_ID
+    };
+    
+    // Send emergency to server
+    ws.send(JSON.stringify({
+        type: "emergency",
+        s: 1,
+        emergency_id: emergencyId
+    }));
+    
+    // Update UI
+    document.getElementById("emergencyBtn").disabled = true;
+    document.getElementById("emergencyStatus").style.display = "block";
+    appendMessage("emergency-msg", "🚨 EMERGENCY TRIGGERED! Notifying available doctors...");
 }
 
-function sendImage(){sendFile("imgInput","image");}
-function sendVideo(){sendFile("videoInput","video");}
-function sendPDF(){sendFile("pdfInput","PDF");}
+function acceptEmergency() {
+    if (!currentEmergency) return;
+    
+    ws.send(JSON.stringify({
+        type: "accept_emergency",
+        emergency_id: currentEmergency.emergency_id,
+        patient_id: currentEmergency.patient_id
+    }));
+    
+    // Update target to patient
+    TARGET_ID = currentEmergency.patient_id;
+    document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+    
+    closeEmergencyModal();
+    appendMessage("system-msg", `✅ You accepted the emergency. Now connected to ${TARGET_ID}.`);
+    
+    // Start call automatically
+    setTimeout(() => startCall(), 500);
+}
 
-//  CAMERA PHOTO 
+function closeEmergencyModal() {
+    document.getElementById("emergencyModal").classList.remove("active");
+}
+
+// =========================
+// CHAT FUNCTIONS (Unchanged)
+// =========================
+
+function appendMessage(className, htmlContent) {
+    const li = document.createElement("li");
+    li.className = className;
+    li.innerHTML = htmlContent;
+    const chat = document.getElementById("chat");
+    chat.appendChild(li);
+    chat.scrollTop = chat.scrollHeight;
+    return li;
+}
+
+function sendText(){
+    const input = document.getElementById("msgInput");
+    const val = input.value.trim();
+    if(!val) return;
+    appendMessage("own-msg", val);
+    ws.send(JSON.stringify({ type:"send", from: MY_ID, to: TARGET_ID, message: val }));
+    input.value="";
+}
+
+function sendFile(id, label){
+    const fileInput = document.getElementById(id);
+    const file = fileInput.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        ws.send(JSON.stringify({ type:"binary", to: TARGET_ID }));
+        ws.send(reader.result);
+    };
+    reader.onloadend = () => {
+        const li = appendMessage("own-msg", `Sent ${label}: `);
+        const url = URL.createObjectURL(file);
+        if(file.type.startsWith("image")){
+            const img=document.createElement("img"); img.src=url; img.style.maxWidth="100%"; li.appendChild(img);
+        } else if(file.type.startsWith("video")){
+            const v=document.createElement("video"); v.src=url; v.controls=true; v.style.maxWidth="100%"; li.appendChild(v);
+        } else {
+            const a=document.createElement("a"); a.href=url; a.target="_blank"; a.textContent="File"; a.style.color="white"; li.appendChild(a);
+        }
+    };
+    reader.readAsArrayBuffer(file);
+    fileInput.value="";
+}
+
+async function handleBinary(data) {
+    const arrayBuffer = await data.arrayBuffer();
+    const uint8 = new Uint8Array(arrayBuffer);
+    let mimeType = "application/octet-stream";
+    
+    if (uint8[0] === 0x25 && uint8[1] === 0x50) mimeType = "application/pdf";
+    else if (uint8[0] === 0x89) mimeType = "image/png";
+    else if (uint8[0] === 0xFF) mimeType = "image/jpeg";
+    else if (uint8[0] === 0x1A) mimeType = "video/webm";
+
+    const blob = new Blob([arrayBuffer], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const li = appendMessage("them-msg", "Received: ");
+
+    if (mimeType.startsWith("image")) {
+        const img = document.createElement("img"); img.src = url; img.style.maxWidth = "100%"; li.appendChild(img);
+    } else if (mimeType.startsWith("video")) {
+        const v = document.createElement("video"); v.src = url; v.controls = true; v.style.maxWidth = "100%"; li.appendChild(v);
+    } else {
+        const a = document.createElement("a"); a.href = url; a.textContent = "Open File"; li.appendChild(a);
+    }
+}
+
+// =========================
+// WEBRTC CALL LOGIC (Unchanged)
+// =========================
+
+async function startCall(){
+    document.getElementById("callArea").style.display = "flex";
+    localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+    document.getElementById("localVideo").srcObject = localStream;
+    await createPeer();
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    ws.send(JSON.stringify({ type:"offer", from: MY_ID, to: TARGET_ID, offer:offer }));
+}
+
+function endCall() {
+    ws.send(JSON.stringify({ type: "hangup", to: TARGET_ID }));
+    handleHangup();
+}
+
+function handleHangup() {
+    if (pc) {
+        pc.close();
+        pc = null;
+    }
+    if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+    }
+    document.getElementById("callArea").style.display = "none";
+    document.getElementById("localVideo").srcObject = null;
+    document.getElementById("remoteVideo").srcObject = null;
+    appendMessage("system-msg", "<i>Call ended.</i>");
+}
+
+async function createPeer(){
+    pc = new RTCPeerConnection(config);
+    pc.onicecandidate = e => {
+        if(e.candidate) ws.send(JSON.stringify({ type:"ice", from: MY_ID, to: TARGET_ID, candidate:e.candidate }));
+    };
+    pc.ontrack = e => { 
+        document.getElementById("remoteVideo").srcObject = e.streams[0]; 
+    };
+    if(localStream) localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+}
+
+// =========================
+// TOOLS (Unchanged)
+// =========================
+
+const recordBtn=document.getElementById("recordBtn");
+recordBtn.onclick=async()=>{
+    if(recordBtn.textContent.includes("Start")){
+        audioChunks=[];
+        const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+        mediaRecorder=new MediaRecorder(stream);
+        mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
+        mediaRecorder.start();
+        recordBtn.innerHTML='<i class="fas fa-stop"></i> Stop Recording';
+        recordBtn.style.color="red";
+    } else {
+        mediaRecorder.stop();
+        mediaRecorder.onstop=()=>{
+            recordBtn.innerHTML='<i class="fas fa-microphone"></i> Start Recording';
+            recordBtn.style.color="";
+            document.getElementById("sendVoiceBtn").disabled=false;
+        };
+    }
+};
+
+function sendVoice(){
+    const blob = new Blob(audioChunks, { type: "audio/webm" });
+    const url = URL.createObjectURL(blob);
+    const li = appendMessage("own-msg", "");
+    const audio = document.createElement("audio"); audio.src = url; audio.controls = true;
+    li.appendChild(audio);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        ws.send(JSON.stringify({ type: "binary", from: MY_ID, to: TARGET_ID }));
+        ws.send(reader.result);
+    };
+    reader.readAsArrayBuffer(blob);
+    document.getElementById("sendVoiceBtn").disabled = true;
+}
+
 async function takePhoto(){
-  const video=document.getElementById("cameraPreview"); video.style.display="block";
-  const stream=await navigator.mediaDevices.getUserMedia({video:true});
-  video.srcObject=stream;
-  setTimeout(async()=>{
+    const video=document.getElementById("cameraPreview");
+    video.style.display="block";
+    const stream=await navigator.mediaDevices.getUserMedia({video:true});
+    video.srcObject=stream;
+    await video.play();
     const canvas=document.createElement("canvas");
     canvas.width=video.videoWidth; canvas.height=video.videoHeight;
     canvas.getContext("2d").drawImage(video,0,0);
     const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
-    // ws.send(await blob.arrayBuffer());
-    ws.send(JSON.stringify({
-      type : "send",
-    to: "samirdai",
-    message: await blob.arrayBuffer()
-    }));
-    const li=document.createElement("li"); li.textContent="You sent a camera photo:";
-    const img=document.createElement("img"); img.src=URL.createObjectURL(blob); img.style.maxWidth="200px"; li.appendChild(img);
-    document.getElementById("chat").appendChild(li);
-    stream.getTracks().forEach(t=>t.stop()); video.style.display="none";
-  },2000);
-}
-
-//  VOICE RECORDING 
-const recordBtn=document.getElementById("recordBtn");
-const sendVoiceBtn=document.getElementById("sendVoiceBtn");
-
-recordBtn.onclick=async()=>{
-  if(recordBtn.textContent==="Start Recording"){
-    audioChunks=[]; const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    mediaRecorder=new MediaRecorder(stream);
-    mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
-    mediaRecorder.start(); recordBtn.textContent="Stop Recording";
-  } else {
-    mediaRecorder.stop();
-    mediaRecorder.onstop=()=>{recordBtn.textContent="Start Recording"; sendVoiceBtn.disabled=false;}
-  }
-};
-
-function sendVoice(){
-  const blob=new Blob(audioChunks,{type:"audio/webm"});
-  const reader=new FileReader();
-  reader.onload=()=>ws.send(reader.result);
-  reader.onloadend=()=>{
-    const li=document.createElement("li");
-    li.textContent="You sent a voice message:";
-    const audio=document.createElement("audio"); audio.src=URL.createObjectURL(blob); audio.controls=true;
-    li.appendChild(audio); document.getElementById("chat").appendChild(li);
-    sendVoiceBtn.disabled=true;
-  };
-  reader.readAsArrayBuffer(blob);
-}
-
-/*  WEBRTC CALL  */
-let pc;
-let localStream;
-const config={iceServers:[{urls:"stun:stun.l.google.com:19302"}]};
-
-ws.addEventListener("message", async event=>{
-  if(typeof event.data!=="string") return; // skip binary
-  const msg=JSON.parse(event.data);
-  if(msg.type==="offer"){
-    await createPeer();
-    await pc.setRemoteDescription(msg.offer);
-    const answer=await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    ws.send(JSON.stringify({type:"answer",answer}));
-  }
-  if(msg.type==="answer") await pc.setRemoteDescription(msg.answer);
-  if(msg.type==="ice") await pc.addIceCandidate(msg.candidate);
-});
-
-async function createPeer(){
-  pc=new RTCPeerConnection(config);
-  pc.onicecandidate=e=>{if(e.candidate) ws.send(JSON.stringify({type:"ice",candidate:e.candidate}));};
-  pc.ontrack=e=>document.getElementById("remoteVideo").srcObject=e.streams[0];
-  localStream.getTracks().forEach(track=>pc.addTrack(track,localStream));
-}
-
-async function startCall(){
-  localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-  document.getElementById("localVideo").srcObject=localStream;
-  await createPeer();
-  const offer=await pc.createOffer(); await pc.setLocalDescription(offer);
-  ws.send(JSON.stringify({type:"offer",offer}));
+    ws.send(JSON.stringify({ type:"binary", from: MY_ID, to: TARGET_ID }));
+    ws.send(await blob.arrayBuffer());
+    stream.getTracks().forEach(t=>t.stop());
+    video.style.display="none";
+    appendMessage("own-msg", "Sent a photo.");
 }
 </script>
-
 </body>
-</html> -->
+</html>
