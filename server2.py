@@ -4,9 +4,7 @@ import socket
 import json
 import sqlite3
 
-# =========================
 # DATABASE SETUP
-# =========================
 
 conn = sqlite3.connect("chat.db")
 cursor = conn.cursor()
@@ -23,9 +21,7 @@ CREATE TABLE IF NOT EXISTS messages (
 
 conn.commit()
 
-# =========================
 # ONLINE USERS MEMORY
-# =========================
 
 # user_id -> set of websockets
 clients = {}
@@ -54,9 +50,7 @@ async def handler(websocket):
     try:
         async for message in websocket:
 
-            # =========================
             # STRING MESSAGES
-            # =========================
             if isinstance(message, str):
 
                 try:
@@ -66,7 +60,7 @@ async def handler(websocket):
 
                 msg_type = data.get("type")
 
-                # ================= AUTH =================
+                #  AUTH 
                 if msg_type == "auth":
 
                     user_id = data.get("user_id")
@@ -105,7 +99,7 @@ async def handler(websocket):
                         """, (msg_id,))
                         conn.commit()
 
-                # ================= NORMAL MESSAGE =================
+                #  NORMAL MESSAGE 
                 elif msg_type == "send":
 
                     recipient_id = data.get("to")
@@ -132,7 +126,7 @@ async def handler(websocket):
                         """, (user_id, recipient_id, text))
                         conn.commit()
 
-                # ================= EMERGENCY BROADCAST =================
+                #  EMERGENCY BROADCAST 
                 elif msg_type == "emergency":
 
                     if data.get("s") == 1:
@@ -155,7 +149,7 @@ async def handler(websocket):
                                             "emergency_id": emergency_id
                                         }))
 
-                # ================= DOCTOR ACCEPT =================
+                #  DOCTOR ACCEPT 
                 elif msg_type == "accept_emergency":
 
                     emergency_id = data.get("emergency_id")
@@ -186,7 +180,7 @@ async def handler(websocket):
                                             "emergency_id": emergency_id
                                         }))
 
-                # ================= WEBRTC SIGNALING =================
+                #  WEBRTC SIGNALING
                 elif msg_type in ["offer", "answer", "ice"]:
 
                     recipient_id = data.get("to")
@@ -195,13 +189,11 @@ async def handler(websocket):
                         for ws in clients[recipient_id]:
                             await ws.send(json.dumps(data))
 
-                # ================= BINARY PREP =================
                 elif msg_type == "binary":
                     current_binary_target = data.get("to")
 
-            # =========================
             # BINARY FILE DATA
-            # =========================
+        
             elif isinstance(message, bytes):
 
                 if current_binary_target and current_binary_target in clients:
