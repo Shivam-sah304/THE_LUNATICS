@@ -51,8 +51,8 @@
 /* CONFIGURATION */
 /* ============================= */
 
-const MY_ID = "samir";      // change per browser
-let TARGET_ID = "sishir";   // MUST be let (important)
+const MY_ID = "sishir";      // change per browser
+let TARGET_ID = "samir";   // MUST be let (important)
 
 document.getElementById("myIdDisplay").textContent = MY_ID;
 document.getElementById("targetIdDisplay").textContent = TARGET_ID;
@@ -78,6 +78,8 @@ ws.onopen = () => {
 /* ============================= */
 /* MESSAGE RECEIVER */
 /* ============================= */
+
+
 ws.onmessage = async (event) => {
 
   // STRING MESSAGE (JSON or TEXT)
