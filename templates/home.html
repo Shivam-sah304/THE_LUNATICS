@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Lunatics | Digitizing Healthcare Nepal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+            color: #2d3748;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER --- */
+        header {
+            width: 100%;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+        .logo span { color: #3182ce; }
+
+        .ref-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #3182ce;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            font-size: 24px;
+            transition: 0.4s;
+            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.4);
+        }
+        .ref-button:hover { transform: rotate(360deg); background: #2b6cb0; }
+
+        /* --- PHILOSOPHY SECTION --- */
+        .philosophy {
+            text-align: center;
+            padding: 80px 10% 40px;
+            background: white;
+        }
+
+        .motto {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: #1a202c;
+        }
+
+        .intro-text {
+            max-width: 850px;
+            margin: 0 auto;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #4a5568;
+        }
+
+        /* --- INTERACTIVE STACK SECTION --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px;
+        }
+
+        .hero h2 {
+            margin-bottom: 50px;
+            font-size: 28px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .stack-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+
+        .card {
+            position: absolute;
+            width: 320px; 
+            height: 420px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            cursor: pointer;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .card1 { right: 8%; top: 60px; transform: rotate(-8deg); z-index: 1; }
+        .card2 { right: 10%; top: 40px; transform: rotate(-4deg); z-index: 2; }
+        .card3 { right: 12%; top: 20px; transform: rotate(0deg); z-index: 3; }
+        .card4 { right: 14%; top: 0px; transform: rotate(4deg); z-index: 4; }
+
+        .card.on-center {
+            right: 50% !important;
+            top: 50% !important;
+            transform: translate(50%, -50%) rotate(0deg) !important;
+            width: 384px !important; 
+            height: 560px !important;
+            z-index: 100 !important;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.15);
+        }
+
+        .card.on-left {
+            right: auto !important;
+            left: 8% !important;
+            top: 60px !important;
+            width: 320px !important;
+            height: 420px !important;
+            transform: rotate(-5deg) !important;
+            z-index: 10;
+        }
+
+        .card h3 { color: #3182ce; margin: 20px 0; }
+        .card p { opacity: 0; transition: 0.5s; text-align: justify; color: #4a5568; }
+        .card.on-center p { opacity: 1; }
+
+        /* --- HOW IT HELPS SECTION --- */
+        .how-it-helps {
+            padding: 100px 10%;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .help-item {
+            background: #f8fafc;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: left;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+        /* The Virtual Feature Punch Style */
+        .virtual-box {
+            background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%);
+            color: white !important;
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(49, 130, 206, 0.2);
+        }
+
+        .virtual-box h3, .virtual-box p { color: white !important; }
+
+        .help-item h3 { margin-bottom: 20px; font-size: 24px; color: #2d3748; }
+        .help-item p { line-height: 1.8; font-size: 16px; color: #4a5568; }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #1a202c;
+            color: white;
+            padding: 60px 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .team-list { list-style: none; text-align: right; }
+        .team-list li { margin-bottom: 8px; color: #cbd5e0; }
+        .team-list strong { color: white; display: block; margin-bottom: 15px; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+
+
+
+
+    <!-- add reference here -->
+    <header>
+        <div class="logo">THE <span>LUNATICS</span></div>
+        <a href="#references" class="ref-button">➔</a>
+    </header>
+
+    <section class="philosophy">
+
+
+        <!--  -->
+        <h1 class="motto"><<<<add appname here>>>>>,Digitizing the Healthcare</h1>
+
+
+
+
+
+        <div class="intro-text">
+            <p>Health is the fundamental pillar of human existence, yet its management in Nepal often remains manual and inaccessible. We believe technology should not be a barrier, but a bridge. To integrate the speed of digital innovation with the empathy of medical care, we created a system that ensures no patient is too far and no medical record is ever lost.</p>
+        </div>
+    </section>
+
+    <section class="hero">
+        <h2>Critical Factors Behind Our Project</h2>
+        <div class="stack-container">
+            <div class="card card1">
+                <div style="font-size:50px">🏔️</div>
+                <h3>Rural Accessibility</h3>
+                <p>Geography should not be a death sentence. Our platform digitizes consultations to bring Kathmandu's medical expertise to the most remote villages of Nepal.</p>
+            </div>
+            <div class="card card2">
+                <div style="font-size:50px">⏳</div>
+                <h3>System Inefficiency</h3>
+                <p>We eliminate 'waiting room' fatigue. Our digital management system streamlines patient flow, ensuring medical attention is fast, affordable, and inclusive.</p>
+            </div>
+            <div class="card card3">
+                <div style="font-size:50px">👵</div>
+                <h3>Mobility Issues</h3>
+                <p>For elderly and paralyzed patients, travel is a traumatic ordeal. We move data, not people, bringing quality healthcare directly to their bedside.</p>
+            </div>
+            <div class="card card4">
+                <div style="font-size:50px">🩺</div>
+                <h3>Preventive Care</h3>
+                <p>By the time many visit a hospital, it's already too late. Our app encourages early check-ups and digital monitoring to detect issues before they become severe.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-helps">
+        <h2>Our Core Digital Solutions</h2>
+        
+        
+        
+        <div class="help-grid">
+            <div class="help-item virtual-box">
+                <h3>Virtual Care & Real-time Dialogues</h3>
+                <p>Healthcare is a conversation, not just a transaction. Our platform features high-definition, real-time video calling integrated with an intuitive messenger interface. Discuss symptoms, share visual data, and consult with your doctor with the same speed and comfort as using Messenger, but with the security of a clinical environment.</p>
+            </div>
+
+            <div class="help-item">
+                <h3>Instant Relative Awareness</h3>
+                <p>Distance should never mean being left in the dark. Our application bridges the emotional gap by automatically informing the patient's relatives as soon as medical actions are taken. From appointment status to critical health updates, we ensure your family is notified in real-time, providing immediate peace of mind.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-left">
+            <h3>Team: THE LUNATICS</h3>
+            <p>Digitizing Healthcare for Nepal</p>
+            <p style="font-size: 13px; margin-top: 30px; color: #718096;"></p>
+        </div>
+        <ul class="team-list">
+            <li><strong>TEAM MEMBERS</strong></li>
+            <li>Member Name 1</li>
+            <li>Member Name 2</li>
+            <li>Member Name 3</li>
+            <li>Member Name 4</li>
+        </ul>
+    </footer>
+
+    <script>
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            let state = 'stack'; 
+            let direction = 'to-left';
+            card.addEventListener('click', () => {
+                if (state === 'stack') {
+                    card.classList.add('on-center'); state = 'center'; direction = 'to-left';
+                } else if (state === 'center' && direction === 'to-left') {
+                    card.classList.remove('on-center'); card.classList.add('on-left'); state = 'left';
+                } else if (state === 'left') {
+                    card.classList.remove('on-left'); card.classList.add('on-center'); state = 'center'; direction = 'to-right';
+                } else if (state === 'center' && direction === 'to-right') {
+                    card.classList.remove('on-center'); state = 'stack';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
