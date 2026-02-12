@@ -13,7 +13,7 @@ routes = Blueprint("routes", __name__)
 def home():
     return render_template("index.html")
 
-@routes.route("/doctor/doctorregistration", methods=["GET", "POST"])
+@routes.route("/doctorregistration", methods=["GET", "POST"])
 def doctorregistration():
     if request.method == "POST":
         session["temp_doctor"] = {
@@ -148,7 +148,18 @@ def doctorpassword():
 #     return render_template("doctorlogin.html")
 
 
+def doctor_login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "doctor_phone" not in session:
+            return redirect(url_for("routes.doctorlogin"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+
 @routes.route('/profileseenbydoctor', methods=['GET', 'POST'])
+@doctor_login_required
 def profileseenbydoctor():
     # Debug: print session contents
     print("Session data:", session)
@@ -169,8 +180,6 @@ def profileseenbydoctor():
 
     # Pass the doctor object to template
     return render_template('profileseenbydoctor.html', doctor=doctor)
-
-
 
 
 
@@ -195,15 +204,9 @@ def doctorlogin():
         return redirect(url_for('routes.profileseenbydoctor'))
 
     return render_template("doctorlogin.html")
-# def login_required(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         if "user_id" not in session:
-#             return redirect(url_for("routes.doctorvalidation"))  # redirect to login if not logged in
-#         return f(*args, **kwargs)
-#     return decorated_function
-#prersonal
-# Step 1: Register patient
+
+
+
 @routes.route("/patient/patient_register", methods=["GET", "POST"])
 def patient_register():
     if request.method == "POST":
@@ -273,8 +276,10 @@ def patient_password():
         return redirect(url_for("routes.home"))
 
     return render_template("patient_password.html")
-@routes.route("/patientlogin", methods=["GET", "POST"])
 
+
+
+@routes.route("/patientlogin", methods=["GET", "POST"])
 def patientlogin():
     if request.method == "POST":
         phone = request.form["phone"]
@@ -283,7 +288,7 @@ def patientlogin():
         user = Patient.query.filter_by(phone=phone).first()
 
         if user and check_password_hash(user.password, password):
-            session["user_id"] = user.id
+            session["user_phone"] = user.phone
             return redirect("/doctor_table")
         else:
             return render_template(
@@ -292,3 +297,48 @@ def patientlogin():
             )
 
     return render_template("patientlogin.html")
+
+def user_login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_phone" not in session:
+            return redirect(url_for("routes.doctorvalidation"))  # redirect to login if not logged in
+        return f(*args, **kwargs)
+    return decorated_function
+
+# @routes.route('/get_id')
+# @user_login_required
+# @doctor_login_required
+# def get_id():
+#     doctor_phone = session.get('doctor_phone')
+#     user_phone = session.get('user_phone')
+#     print(doctor_phone, user_phone)
+#     return render_template('chats.html')
+
+
+
+
+@routes.route("/doctor_table")
+@user_login_required
+def doctor_table():
+    #doctors = Doctor.query.all()
+    return render_template("index.html")
+
+
+
+@routes.route("/doctor/<phone>")
+def doctor_patient(phone):
+    doctor = Doctor.query.get_or_404(phone)  # works because phone is PK
+    return render_template("doctor_patient.html", doctor=doctor) 
+
+
+
+
+
+
+
+
+@routes.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('routes.doctorlogin'))

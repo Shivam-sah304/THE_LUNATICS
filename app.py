@@ -3,7 +3,10 @@ from models import db
 import config
 from routes import routes
 
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)  # allow all origins (or configure specific)
+
 
 app.secret_key = config.SECRET_KEY
 app.config["UPLOAD_FOLDER"] = config.UPLOAD_FOLDER

@@ -1,0 +1,588 @@
+<!-- final  -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket + WebRTC Chat</title>
+</head>
+<body>
+
+<h2>Multi-Media Chat + Real-Time Call</h2>
+
+<p>Your ID: <span id="myIdDisplay">...</span></p>
+<p>Chatting with: <span id="targetIdDisplay">...</span></p>
+
+<div>
+  <h3>Text & File Chat</h3>
+<button onclick="handleSend()">Send</button>
+
+<input id="msgInput" type="text" placeholder="Type message..." />
+<br><br>
+
+<input id="imgInput" type="file" accept="image/*" />
+<br><br>
+
+<input id="videoInput" type="file" accept="video/*" />
+<br><br>
+
+<input id="pdfInput" type="file" accept="application/pdf" />
+<br><br>
+
+<button onclick="takePhoto()">Take Photo</button>
+<video id="cameraPreview" width="200" autoplay style="display:none;"></video>
+<br><br>
+
+<button id="recordBtn">Start Recording</button>
+
+  <ul id="chat"></ul>
+</div>
+
+<hr>
+
+<div>
+  <h3>Video + Voice Call</h3>
+  <button onclick="startCall()">Start Call</button><br><br>
+  <video id="localVideo" autoplay muted playsinline width="200"></video>
+  <video id="remoteVideo" autoplay playsinline width="200"></video>
+</div>
+
+<script>
+
+  function handleSend() {
+
+  const text = document.getElementById("msgInput").value.trim();
+  const imgFile = document.getElementById("imgInput").files[0];
+  const videoFile = document.getElementById("videoInput").files[0];
+  const pdfFile = document.getElementById("pdfInput").files[0];
+
+  //  TEXT
+  if (text !== "") {
+    sendText();
+    return;
+  }
+
+  // IMAGE
+  if (imgFile) {
+    sendFile("imgInput", "image");
+    return;
+  }
+
+  // VIDEO
+  if (videoFile) {
+    sendFile("videoInput", "video");
+    return;
+  }
+
+  // PDF
+  if (pdfFile) {
+    sendFile("pdfInput", "PDF");
+    return;
+  }
+
+  //  VOICE (if recorded)
+  if (audioChunks && audioChunks.length > 0) {
+    sendVoice();
+    return;
+  }
+
+  alert("Nothing to send");
+}
+
+/* ============================= */
+/* CONFIGURATION */
+/* ============================= */
+
+const MY_ID = "samir";      // change per browser
+let TARGET_ID = "sishir";   // MUST be let (important)
+
+document.getElementById("myIdDisplay").textContent = MY_ID;
+document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+
+const ws = new WebSocket("ws://10.61.200.106:8080");
+
+let mediaRecorder, audioChunks = [];
+let pc, localStream;
+
+const config = {
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+};
+
+/* ============================= */
+/* CONNECTION */
+/* ============================= */
+
+ws.onopen = () => {
+  console.log("Connected");
+  ws.send(JSON.stringify({ type: "auth", user_id: MY_ID }));
+};
+
+/* ============================= */
+/* MESSAGE RECEIVER */
+/* ============================= */
+ws.onmessage = async (event) => {
+
+  // STRING MESSAGE (JSON or TEXT)
+  if (typeof event.data === "string") {
+
+    let msg;
+    try {
+      msg = JSON.parse(event.data);
+    } 
+    catch {
+      const li = document.createElement("li");
+      li.textContent = "Received: " + event.data;
+      document.getElementById("chat").appendChild(li);
+      return;
+    }
+
+    // -------- FILE INFO --------
+    if (msg.type === "file-info") {
+      incomingFileType = msg.fileType;
+      return;
+    }
+
+    // -------- WEBRTC --------
+    if (msg.type === "offer") {
+
+      const li = document.createElement("li");
+      li.textContent = "Incoming call from " + msg.from;
+      document.getElementById("chat").appendChild(li);
+
+      TARGET_ID = msg.from;
+      document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+
+      await createPeer();
+      await pc.setRemoteDescription(msg.offer);
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      ws.send(JSON.stringify({
+        type: "answer",
+        from: MY_ID,
+        to: TARGET_ID,
+        answer: answer
+      }));
+    }
+
+    else if (msg.type === "answer") {
+      await pc.setRemoteDescription(msg.answer);
+    }
+
+    else if (msg.type === "ice") {
+      await pc.addIceCandidate(msg.candidate);
+    }
+
+    return;
+  }
+
+  // BINARY MESSAGE
+else {
+  const arrayBuffer = await event.data.arrayBuffer();
+  const uint8 = new Uint8Array(arrayBuffer);
+
+  let mimeType = "application/octet-stream";
+
+  // ===== PDF =====
+  if (uint8[0] === 0x25 && uint8[1] === 0x50 &&
+      uint8[2] === 0x44 && uint8[3] === 0x46) {
+    mimeType = "application/pdf";
+  }
+
+  // ===== PNG =====
+  else if (uint8[0] === 0x89 && uint8[1] === 0x50) {
+    mimeType = "image/png";
+  }
+
+  // ===== JPEG =====
+  else if (uint8[0] === 0xFF && uint8[1] === 0xD8) {
+    mimeType = "image/jpeg";
+  }
+
+  // ===== MP4 (ftyp) =====
+  else if (
+    uint8[4] === 0x66 && // f
+    uint8[5] === 0x74 && // t
+    uint8[6] === 0x79 && // y
+    uint8[7] === 0x70    // p
+  ) {
+    mimeType = "video/mp4";
+  }
+
+  // ===== WEBM =====
+  else if (uint8[0] === 0x1A && uint8[1] === 0x45) {
+    mimeType = "video/webm";
+  }
+
+  // ===== WAV =====
+  else if (
+    uint8[0] === 0x52 && // R
+    uint8[1] === 0x49 && // I
+    uint8[2] === 0x46 && // F
+    uint8[3] === 0x46    // F
+  ) {
+    mimeType = "audio/wav";
+  }
+
+  // ===== MP3 =====
+  else if (uint8[0] === 0xFF && (uint8[1] & 0xE0) === 0xE0) {
+    mimeType = "audio/mpeg";
+  }
+
+  // ===== MOV (QuickTime) =====
+  else if (
+    uint8[4] === 0x6D && // m
+    uint8[5] === 0x6F && // o
+    uint8[6] === 0x6F && // o
+    uint8[7] === 0x76    // v
+  ) {
+    mimeType = "video/quicktime";
+  }
+
+  const blob = new Blob([arrayBuffer], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+
+  const li = document.createElement("li");
+  li.textContent = "Received File: ";
+
+  // ===== IMAGE =====
+  if (mimeType.startsWith("image")) {
+    const img = document.createElement("img");
+    img.src = url;
+    img.style.maxWidth = "200px";
+    li.appendChild(img);
+  }
+
+  // ===== VIDEO =====
+  else if (mimeType.startsWith("video")) {
+    const video = document.createElement("video");
+    video.src = url;
+    video.controls = true;
+    video.style.maxWidth = "300px";
+    li.appendChild(video);
+  }
+
+  // ===== AUDIO =====
+  else if (mimeType.startsWith("audio")) {
+    const audio = document.createElement("audio");
+    audio.src = url;
+    audio.controls = true;
+    li.appendChild(audio);
+  }
+
+  // ===== PDF =====
+  else if (mimeType === "application/pdf") {
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.textContent = "Open PDF";
+    li.appendChild(a);
+  }
+
+  document.getElementById("chat").appendChild(li);
+}};
+
+
+
+// ws.onmessage = async (event) => {
+
+//   // STRING MESSAGE (JSON or TEXT)
+//   if (typeof event.data === "string") {
+
+//     let msg;
+//     try {
+//       msg = JSON.parse(event.data);
+//     } catch {
+//       const li = document.createElement("li");
+//       li.textContent = "Received: " + event.data;
+//       document.getElementById("chat").appendChild(li);
+//       return;
+//     }
+
+//     // -------- WEBRTC --------
+//     if (msg.type === "offer") {
+
+//       const li = document.createElement("li");
+//       li.textContent = "Incoming call from " + msg.from;
+//       document.getElementById("chat").appendChild(li);
+
+//       TARGET_ID = msg.from;
+//       document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+
+//       await createPeer();
+//       await pc.setRemoteDescription(msg.offer);
+
+//       const answer = await pc.createAnswer();
+//       await pc.setLocalDescription(answer);
+
+//       ws.send(JSON.stringify({
+//         type: "answer",
+//         from: MY_ID,
+//         to: TARGET_ID,
+//         answer: answer
+//       }));
+//     }
+
+//     else if (msg.type === "answer") {
+//       await pc.setRemoteDescription(msg.answer);
+//     }
+
+//     else if (msg.type === "ice") {
+//       await pc.addIceCandidate(msg.candidate);
+//     }
+
+//     return;
+//   }
+
+//   // BINARY MESSAGE
+//   else {
+//     const arrayBuffer = await event.data.arrayBuffer();
+//     const blob = new Blob([arrayBuffer]);
+//     const url = URL.createObjectURL(blob);
+
+//     const li = document.createElement("li");
+//     li.textContent = "Received File: ";
+
+//     const img = document.createElement("img");
+//     img.src = url;
+//     img.style.maxWidth = "200px";
+//     img.onerror = () => img.remove();
+
+//     const video = document.createElement("video");
+//     video.src = url;
+//     video.controls = true;
+//     video.style.maxWidth="300px";
+//     video.onerror = () => video.remove();
+
+//     const audio = document.createElement("audio");
+//     audio.src = url;
+//     audio.controls = true;
+//     audio.onerror = () => audio.remove();
+
+//     li.appendChild(img);
+//     li.appendChild(video);
+//     li.appendChild(audio);
+
+//     document.getElementById("chat").appendChild(li);
+//   }
+// };
+
+
+/* ============================= */
+/* SEND TEXT */
+/* ============================= */
+
+function sendText(){
+  const input = document.getElementById("msgInput");
+  const msg = input.value.trim();
+  if(!msg) return;
+
+  ws.send(JSON.stringify({
+    type:"send",
+    from: MY_ID,
+    to: TARGET_ID,
+    message: msg
+  }));
+
+  const li = document.createElement("li");
+  li.textContent = "You: " + msg;
+  document.getElementById("chat").appendChild(li);
+  input.value="";
+}
+
+/* ============================= */
+/* SEND FILE */
+/* ============================= */
+
+// function sendFile(id,label){
+//   const fileInput = document.getElementById(id);
+//   const file = fileInput.files[0];
+//   if(!file) return alert(`Select a ${label}`);
+
+//   const reader = new FileReader();
+//   reader.onload = () => {
+//     ws.send(JSON.stringify({ type:"binary", from: MY_ID, to: TARGET_ID }));
+//     ws.send(reader.result);
+//   };
+
+//   reader.readAsArrayBuffer(file);
+
+//   const li = document.createElement("li");
+//   li.textContent = `You sent ${label}`;
+//   document.getElementById("chat").appendChild(li);
+
+//   fileInput.value="";
+// }
+
+function sendFile(id,label){
+  const fileInput = document.getElementById(id);
+  const file = fileInput.files[0];
+  if(!file) return alert(`Select a ${label}`);
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    ws.send(JSON.stringify({ type:"binary", to: TARGET_ID }));
+    ws.send(reader.result);
+  };
+
+  reader.onloadend = () => {
+    const li = document.createElement("li");
+    li.textContent = `You sent ${label}: `;
+    const url = URL.createObjectURL(file);
+
+    if(file.type.startsWith("image")){
+      const img=document.createElement("img"); img.src=url; img.style.maxWidth="200px"; li.appendChild(img);
+    }
+    else if(file.type.startsWith("video")){
+      const video=document.createElement("video"); video.src=url; video.controls=true; video.style.maxWidth="300px"; li.appendChild(video);
+    }
+    else if(file.type==="application/pdf"){
+      const a=document.createElement("a"); a.href=url; a.target="_blank"; a.textContent="View PDF"; li.appendChild(a);
+    }
+
+    document.getElementById("chat").appendChild(li);
+  };
+
+  reader.readAsArrayBuffer(file);
+  fileInput.value="";
+}
+
+/* ============================= */
+/* CAMERA */
+/* ============================= */
+
+async function takePhoto(){
+  const video=document.getElementById("cameraPreview");
+  video.style.display="block";
+
+  const stream=await navigator.mediaDevices.getUserMedia({video:true});
+  video.srcObject=stream;
+  await video.play();
+
+  const canvas=document.createElement("canvas");
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  canvas.getContext("2d").drawImage(video,0,0);
+
+  const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
+
+  ws.send(JSON.stringify({ type:"binary", from: MY_ID, to: TARGET_ID }));
+  ws.send(await blob.arrayBuffer());
+
+  stream.getTracks().forEach(t=>t.stop());
+  video.style.display="none";
+}
+
+/* ============================= */
+/* VOICE */
+/* ============================= */
+
+const recordBtn=document.getElementById("recordBtn");
+const sendVoiceBtn=document.getElementById("sendVoiceBtn");
+
+recordBtn.onclick=async()=>{
+  if(recordBtn.textContent==="Start Recording"){
+    audioChunks=[];
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
+    mediaRecorder.start();
+    recordBtn.textContent="Stop Recording";
+  } else {
+    mediaRecorder.stop();
+    mediaRecorder.onstop=()=>{
+      recordBtn.textContent="Start Recording";
+      sendVoiceBtn.disabled=false;
+    };
+  }
+};
+
+// function sendVoice(){
+//   const blob=new Blob(audioChunks,{type:"audio/webm"});
+//   const reader=new FileReader();
+//   reader.onload=()=>{
+//     ws.send(JSON.stringify({ type:"binary", from: MY_ID, to: TARGET_ID }));
+//     ws.send(reader.result);
+//   };
+//   reader.readAsArrayBuffer(blob);
+//   sendVoiceBtn.disabled=true;
+// }
+
+function sendVoice(){
+  const blob = new Blob(audioChunks, { type: "audio/webm" });
+
+  // 🔹 SHOW ON SENDER SIDE
+  const url = URL.createObjectURL(blob);
+
+  const li = document.createElement("li");
+  li.textContent = "You: ";
+
+  const audio = document.createElement("audio");
+  audio.src = url;
+  audio.controls = true;
+
+  li.appendChild(audio);
+  document.getElementById("chat").appendChild(li);
+
+  // 🔹 SEND TO SERVER
+  const reader = new FileReader();
+  reader.onload = () => {
+    ws.send(JSON.stringify({ 
+      type: "binary", 
+      from: MY_ID, 
+      to: TARGET_ID 
+    }));
+    ws.send(reader.result);
+  };
+  reader.readAsArrayBuffer(blob);
+
+  sendVoiceBtn.disabled = true;
+}
+
+/* ============================= */
+/* WEBRTC */
+/* ============================= */
+
+async function createPeer(){
+  pc=new RTCPeerConnection(config);
+
+  pc.onicecandidate=e=>{
+    if(e.candidate){
+      ws.send(JSON.stringify({
+        type:"ice",
+        from: MY_ID,
+        to: TARGET_ID,
+        candidate:e.candidate
+      }));
+    }
+  };
+
+  pc.ontrack=e=>{
+    document.getElementById("remoteVideo").srcObject=e.streams[0];
+  };
+
+  localStream.getTracks().forEach(track=>{
+    pc.addTrack(track,localStream);
+  });
+}
+
+async function startCall(){
+  localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+  document.getElementById("localVideo").srcObject=localStream;
+
+  await createPeer();
+
+  const offer=await pc.createOffer();
+  await pc.setLocalDescription(offer);
+
+  ws.send(JSON.stringify({
+    type:"offer",
+    from: MY_ID,
+    to: TARGET_ID,
+    offer:offer
+  }));
+}
+
+</script>
+</body>
+</html>

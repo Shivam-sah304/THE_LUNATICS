@@ -1,0 +1,12 @@
+websockets
+flask
+flask_sqlalchemy
+pdfplumber
+python-docx
+pytesseract
+selenium
+undetected-chromedriver
+fake-useragent
+setuptools
+wheel
+flask-cors
