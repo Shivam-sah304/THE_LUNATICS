@@ -306,14 +306,28 @@ def user_login_required(f):
 @user_login_required
 def doctor_table():
     doctors = Doctor.query.all()
+
     return render_template("doctor_table.html", doctors=doctors)
 
 
 
-@routes.route("/doctor/<phone>")
+@routes.route("/doctor_patient")
 @user_login_required
 def doctor_patient(phone):
+    print(phone)
     doctor = Doctor.query.get_or_404(phone)
+    doctor = {
+    "photo": "uploads/abc.jpg",
+    "name": "Dr. Rajan",
+    "status": 1,
+    "id": 123,
+    "rating": 4,
+    "specialty": "Cardiology",
+    "about": "Experienced cardiologist ...",
+    "facebook": "https://facebook.com/rajan",
+    "whatsapp": "919876543210"
+}
+
     print(phone)  # works because phone is PK
     return render_template("doctor_patient.html", doctor=doctor) 
     
