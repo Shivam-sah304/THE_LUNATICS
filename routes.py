@@ -701,6 +701,64 @@ def final(phone):
     return render_template('final.html', data = data)
 
 
+#delete account
+@routes.route("/delete_account", methods=["POST"])
+def delete_account():
+    doctor_phone = session.get("doctor_phone")
+    doctor = Doctor.query.get_or_404(doctor_phone)
+
+    db.session.delete(doctor)
+    db.session.commit()
+    session.pop("doctor_phone", None)  # log out user
+    flash("Your account has been deleted.")
+    return redirect(url_for("routes.home"))
+#edit account
+@routes.route("/edit_profile", methods=["GET", "POST"])
+def edit_profile():
+    doctor_phone = session.get("doctor_phone")  # or however you store logged-in user
+    doctor = Doctor.query.get_or_404(doctor_phone)
+
+    if request.method == "POST":
+        doctor.name = request.form.get("name")
+        doctor.specialization = request.form.get("specialization")
+        doctor.facebook = request.form.get("facebook")
+        doctor.desc = request.form.get("desc")
+        # Add other fields if needed
+        db.session.commit()
+        flash("Profile updated successfully.")
+        return redirect(url_for("routes.profileseenbydoctor", phone=doctor.phone))
+
+    return render_template("edit_profile.html", doctor=doctor)
+#change password
+from werkzeug.security import generate_password_hash, check_password_hash
+
+@routes.route("/change_password", methods=["GET", "POST"])
+def change_password():
+    doctor_phone = session.get("doctor_phone")
+    doctor = Doctor.query.get_or_404(doctor_phone)
+
+    if request.method == "POST":
+        old_password = request.form.get("old_password")
+        new_password = request.form.get("new_password")
+        confirm_password = request.form.get("confirm_password")
+
+        if not check_password_hash(doctor.password, old_password):
+            flash("Old password is incorrect")
+            return redirect(url_for("routes.change_password"))
+
+        if new_password != confirm_password:
+            flash("Passwords do not match")
+            return redirect(url_for("routes.change_password"))
+
+        doctor.password = generate_password_hash(new_password)
+        db.session.commit()
+        flash("Password changed successfully")
+        return redirect(url_for("routes.profileseenbydoctor", phone=doctor.phone))
+
+    return render_template("change_password.html")
+
+
+
 
 
 

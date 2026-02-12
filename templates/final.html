@@ -9,8 +9,8 @@
 
 <h2>Multi-Media Chat + Real-Time Call</h2>
 
-<p>Your ID: <span id="myIdDisplay">...</span></p>
-<p>Chatting with: <span id="targetIdDisplay">...</span></p>
+<p>Your ID: <span id="myIdDisplay">MY_ID</span></p>
+<p>Chatting with: <span id="targetIdDisplay">TARGET_ID</span></p>
 
 <div>
   <h3>Text & File Chat</h3>
@@ -56,7 +56,7 @@
 const MY_ID = "{{ data.my_id }}";
 let TARGET_ID = "{{ data.target_id }}"; 
  // MUST be let (important)
-console.log(MY_ID)
+
 document.getElementById("myIdDisplay").textContent = MY_ID;
 document.getElementById("targetIdDisplay").textContent = TARGET_ID;
 
