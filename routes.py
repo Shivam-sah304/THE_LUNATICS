@@ -380,6 +380,11 @@ def home():
     return render_template("index.html")
 
 
+#endoet
+# @routes.route('/signin')
+# def signin():
+#     return render_template('index.html')
+
 @routes.route("/doctorregistration", methods=["GET", "POST"])
 def doctorregistration():
     if request.method == "POST":
@@ -656,6 +661,15 @@ def doctor_table():
     doctors = Doctor.query.all()
 
     return render_template("doctor_table.html", doctors=doctors)
+
+@routes.route("/patient_table")
+# @user_login_required
+def patient_table():
+    patient = Patient.query.all()
+
+    return render_template("patient_table.html", patient=patient)
+
+
  
 from sqlalchemy import func
 
@@ -720,7 +734,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 @routes.route("/change_password", methods=["GET", "POST"])
 def change_password():
-    doctor_phone = session.get("doctor_id")
+    doctor_phone = session.get("doctor_phone")
     doctor = Doctor.query.get_or_404(doctor_phone)
 
     if request.method == "POST":

@@ -3,446 +3,350 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE LUNATIC - Messenger</title>
+    <title>The Lunatics | Digitizing Healthcare Nepal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --primary: #0084ff;
-            --bg-chat: #ffffff;
-            --bg-side: #f5f7f9;
-            --text-main: #050505;
-            --bubble-own: #0084ff;
-            --bubble-them: #e4e6eb;
-            --border: #dee2e6;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: #f0f2f5;
-            margin: 0;
-            display: flex;
-            height: 100vh;
-            justify-content: center;
-            align-items: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+            color: #2d3748;
+            overflow-x: hidden;
         }
 
-        /* Messenger Container */
-        .messenger-app {
-            display: flex;
+        /* --- HEADER --- */
+        header {
             width: 100%;
-            max-width: 1400px;
-            height: 90vh;
-            background: var(--bg-chat);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 360px;
-            background: var(--bg-side);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .profile-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-        }
-
-        /* Chat Window */
-        .chat-window {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-header {
-            padding: 15px 25px;
-            border-bottom: 1px solid var(--border);
+            padding: 15px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        #chat {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            list-style: none;
             background: white;
-            margin: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
         }
 
-        #chat li {
-            max-width: 60%;
-            padding: 10px 15px;
-            border-radius: 18px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            word-wrap: break-word;
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo span { color: #3182ce; }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* Messenger Bubble Styles */
-        #chat li.own-msg {
-            align-self: flex-end;
-            background: var(--bubble-own);
+        /* Sign In Button (Ghost Style) */
+        .signin-btn {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 8px 16px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .signin-btn:hover {
+            color: #3182ce;
+        }
+
+        /* Sign Up Button (Solid Style) */
+        .signup-btn {
+            background: #3182ce;
+            color: white;
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(49, 130, 206, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .signup-btn:hover {
+            background: #2c5282;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(49, 130, 206, 0.25);
+        }
+
+        .ref-button {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #edf2f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3182ce;
+            text-decoration: none;
+            transition: 0.4s;
+        }
+        .ref-button:hover { 
+            transform: rotate(360deg); 
+            background: #3182ce; 
             color: white;
         }
 
-        #chat li.them-msg {
-            align-self: flex-start;
-            background: var(--bubble-them);
-            color: var(--text-main);
+        /* --- PHILOSOPHY SECTION --- */
+        .philosophy {
+            text-align: center;
+            padding: 80px 10% 40px;
+            background: white;
         }
 
-        /* Video Call Section - Per User Request: Button styles remain logic-focused */
-        .call-area {
-            padding: 10px;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        video {
-            background: #242526;
-            border-radius: 8px;
+        .motto {
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: #1a202c;
         }
 
-        /* Input Area */
-        .input-area {
-            padding: 20px;
-            border-top: 1px solid var(--border);
+        .intro-text {
+            max-width: 850px;
+            margin: 0 auto;
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #4a5568;
         }
 
-        .input-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 12px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: #f0f2f5;
-            outline: none;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .file-grid {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed var(--border);
-        }
-
-        .file-grid input { display: none; }
-        
-        .file-label {
-            font-size: 0.8rem;
-            cursor: pointer;
-            color: #65676b;
+        /* --- INTERACTIVE STACK SECTION --- */
+        .hero {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 60px 20px;
         }
+
+        .hero h2 {
+            margin-bottom: 50px;
+            font-size: 28px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .stack-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+        }
+
+        .card {
+            position: absolute;
+            width: 320px; 
+            height: 420px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            cursor: pointer;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .card1 { right: 8%; top: 60px; transform: rotate(-8deg); z-index: 1; }
+        .card2 { right: 10%; top: 40px; transform: rotate(-4deg); z-index: 2; }
+        .card3 { right: 12%; top: 20px; transform: rotate(0deg); z-index: 3; }
+        .card4 { right: 14%; top: 0px; transform: rotate(4deg); z-index: 4; }
+
+        .card.on-center {
+            right: 50% !important;
+            top: 50% !important;
+            transform: translate(50%, -50%) rotate(0deg) !important;
+            width: 384px !important; 
+            height: 560px !important;
+            z-index: 100 !important;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.15);
+        }
+
+        .card.on-left {
+            right: auto !important;
+            left: 8% !important;
+            top: 60px !important;
+            width: 320px !important;
+            height: 420px !important;
+            transform: rotate(-5deg) !important;
+            z-index: 10;
+        }
+
+        .card h3 { color: #3182ce; margin: 20px 0; }
+        .card p { opacity: 0; transition: 0.5s; text-align: justify; color: #4a5568; }
+        .card.on-center p { opacity: 1; }
+
+        /* --- HOW IT HELPS SECTION --- */
+        .how-it-helps {
+            padding: 100px 10%;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .help-item {
+            background: #f8fafc;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: left;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+        .virtual-box {
+            background: linear-gradient(135deg, #3182ce 0%, #2b6cb0 100%);
+            color: white !important;
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(49, 130, 206, 0.2);
+        }
+
+        .virtual-box h3, .virtual-box p { color: white !important; }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #1a202c;
+            color: white;
+            padding: 60px 10%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .team-list { list-style: none; text-align: right; }
+        .team-list li { margin-bottom: 8px; color: #cbd5e0; }
+        .team-list strong { color: white; display: block; margin-bottom: 15px; font-size: 18px; }
     </style>
 </head>
 <body>
 
-<div class="messenger-app">
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h2>Chats</h2>
-            <div class="profile-card">
-                <small>Connected as:</small><br>
-                <strong><span id="myIdDisplay">...</span></strong>
-            </div>
-            <div class="profile-card">
-                <small>Chatting with:</small><br>
-                <strong><span id="targetIdDisplay">...</span></strong>
-            </div>
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-house-medical"></i> 
+            THE <span>LUNATICS</span>
         </div>
-        <div style="padding: 20px;">
-            <p style="color: #65676b; font-size: 0.9rem;">Recent Media & Tools</p>
-            <button id="recordBtn" class="icon-btn" style="font-size: 1rem; border: 1px solid; border-radius: 5px; padding: 5px 10px; width: 100%; margin-bottom: 5px;">Start Recording</button>
-            <button id="sendVoiceBtn" onclick="sendVoice()" disabled class="icon-btn" style="font-size: 1rem; border: 1px solid; border-radius: 5px; padding: 5px 10px; width: 100%;">Send Voice</button>
+        <div class="nav-actions">
+            <a href="{{ url_for('routes.index') }}" class="signin-btn">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In
+            </a>
+            <a href="#signup" class="signup-btn">
+                <i class="fa-solid fa-user-plus"></i> Sign Up
+            </a>
+            <a href="#references" class="ref-button" title="Reference Link">
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
         </div>
-    </div>
+    </header>
 
-    <div class="chat-window">
-        <div class="chat-header">
-            <div style="display:flex; align-items:center; gap:10px;">
-                <div style="width:40px; height:40px; background:#ccc; border-radius:50%;"></div>
-                <strong>Direct Message</strong>
+    <section class="philosophy">
+        <h1 class="motto">
+            <i class="fa-solid fa-microchip" style="color:#3182ce; font-size: 40px; vertical-align: middle;"></i> 
+            NEPAL CARE, Digitizing Healthcare
+        </h1>
+
+        <div class="intro-text">
+            <p>Health is the fundamental pillar of human existence, yet its management in Nepal often remains manual and inaccessible. We believe technology should not be a bridge. To integrate the speed of digital innovation with the empathy of medical care, we created a system that ensures no patient is too far and no medical record is ever lost.</p>
+        </div>
+    </section>
+
+    <section class="hero">
+        <h2>Critical Factors Behind Our Project</h2>
+        <div class="stack-container">
+            <div class="card card1">
+                <div style="font-size:50px"><i class="fa-solid fa-mountain-sun"></i></div>
+                <h3>Rural Accessibility</h3>
+                <p>Geography should not be a death sentence. Our platform digitizes consultations to bring Kathmandu's medical expertise to the most remote villages of Nepal.</p>
             </div>
-            <button onclick="startCall()" class="icon-btn" style="font-size: 1.5rem;"><i class="fas fa-video"></i></button>
-        </div>
-
-        <ul id="chat">
-            </ul>
-
-        <div class="call-area" id="callArea" style="display:none;">
-            <video id="localVideo" autoplay muted playsinline width="150"></video>
-            <video id="remoteVideo" autoplay playsinline width="300"></video>
-        </div>
-
-        <div class="input-area">
-            <div class="input-row">
-                <button class="icon-btn" onclick="takePhoto()"><i class="fas fa-camera"></i></button>
-                <input id="msgInput" type="text" placeholder="Aa" onkeypress="if(event.key==='Enter') sendText()">
-                <button class="icon-btn" onclick="sendText()"><i class="fas fa-paper-plane"></i></button>
+            <div class="card card2">
+                <div style="font-size:50px"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <h3>System Inefficiency</h3>
+                <p>We eliminate 'waiting room' fatigue. Our digital management system streamlines patient flow, ensuring medical attention is fast, affordable, and inclusive.</p>
             </div>
-            
-            <div class="file-grid">
-                <label class="file-label">
-                    <i class="fas fa-image fa-lg"></i> Image
-                    <input id="imgInput" type="file" accept="image/*" onchange="sendFile('imgInput','image')">
-                </label>
-                <label class="file-label">
-                    <i class="fas fa-file-video fa-lg"></i> Video
-                    <input id="videoInput" type="file" accept="video/*" onchange="sendFile('videoInput','video')">
-                </label>
-                <label class="file-label">
-                    <i class="fas fa-file-pdf fa-lg"></i> PDF
-                    <input id="pdfInput" type="file" accept="application/pdf" onchange="sendFile('pdfInput','PDF')">
-                </label>
-                <video id="cameraPreview" width="100" autoplay style="display:none; border-radius:5px;"></video>
+            <div class="card card3">
+                <div style="font-size:50px"><i class="fa-solid fa-wheelchair"></i></div>
+                <h3>Mobility Issues</h3>
+                <p>For elderly and paralyzed patients, travel is a traumatic ordeal. We move data, not people, bringing quality healthcare directly to their bedside.</p>
+            </div>
+            <div class="card card4">
+                <div style="font-size:50px"><i class="fa-solid fa-stethoscope"></i></div>
+                <h3>Preventive Care</h3>
+                <p>By the time many visit a hospital, it's already too late. Our app encourages early check-ups and digital monitoring to detect issues before they become severe.</p>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<script>
-/* ============================= */
-/* CONFIGURATION (KEPT AS IS)    */
-/* ============================= */
-const MY_ID = "samir";
-let TARGET_ID = "sishir"; 
+    <section class="how-it-helps">
+        <h2>Our Core Digital Solutions</h2>
+        
+        <div class="help-grid">
+            <div class="help-item virtual-box">
+                <i class="fa-solid fa-video" style="font-size: 30px; margin-bottom: 15px;"></i>
+                <h3>Virtual Care & Real-time Dialogues</h3>
+                <p>Healthcare is a conversation, not just a transaction. Our platform features high-definition, real-time video calling integrated with an intuitive messenger interface.</p>
+            </div>
 
-document.getElementById("myIdDisplay").textContent = MY_ID;
-document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+            <div class="help-item">
+                <i class="fa-solid fa-bell" style="font-size: 30px; margin-bottom: 15px; color: #3182ce;"></i>
+                <h3>Instant Relative Awareness</h3>
+                <p>Distance should never mean being left in the dark. Our application bridges the emotional gap by automatically informing the patient's relatives as soon as medical actions are taken.</p>
+            </div>
+        </div>
+    </section>
 
-const ws = new WebSocket("ws://10.61.200.106:8080");
-let mediaRecorder, audioChunks = [];
-let pc, localStream;
-const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+    <footer>
+        <div class="footer-left">
+            <h3>Team: THE LUNATICS</h3>
+            <p><i class="fa-solid fa-earth-asia"></i> Digitizing Healthcare for Nepal</p>
+        </div>
+        <ul class="team-list">
+            <li><strong>TEAM MEMBERS</strong></li>
+            <li>Member Name 1</li>
+            <li>Member Name 2</li>
+            <li>Member Name 3</li>
+            <li>Member Name 4</li>
+        </ul>
+    </footer>
 
-/* ============================= */
-/* CONNECTION & RECEIVER         */
-/* ============================= */
-ws.onopen = () => ws.send(JSON.stringify({ type: "auth", user_id: MY_ID }));
-
-ws.onmessage = async (event) => {
-    if (typeof event.data === "string") {
-        let msg;
-        try { msg = JSON.parse(event.data); } 
-        catch {
-            appendMessage("them-msg", "Plain: " + event.data);
-            return;
-        }
-
-        if (msg.type === "message") {
-            appendMessage("them-msg", `<strong>${msg.from}:</strong> ${msg.message}`);
-        }
-        else if (msg.type === "offer") {
-            appendMessage("them-msg", "<i>Incoming call...</i>");
-            TARGET_ID = msg.from;
-            document.getElementById("targetIdDisplay").textContent = TARGET_ID;
-            document.getElementById("callArea").style.display = "flex";
-            await createPeer();
-            await pc.setRemoteDescription(msg.offer);
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            ws.send(JSON.stringify({ type: "answer", from: MY_ID, to: TARGET_ID, answer: answer }));
-        }
-        else if (msg.type === "answer") { await pc.setRemoteDescription(msg.answer); }
-        else if (msg.type === "ice") { await pc.addIceCandidate(msg.candidate); }
-    } else {
-        handleBinary(event.data);
-    }
-};
-
-/* ============================= */
-/* UI HELPERS                    */
-/* ============================= */
-function appendMessage(className, htmlContent) {
-    const li = document.createElement("li");
-    li.className = className;
-    li.innerHTML = htmlContent;
-    const chat = document.getElementById("chat");
-    chat.appendChild(li);
-    chat.scrollTop = chat.scrollHeight;
-    return li;
-}
-
-/* ============================= */
-/* SENDING LOGIC (KEPT AS IS)    */
-/* ============================= */
-function sendText(){
-    const input = document.getElementById("msgInput");
-    const val = input.value.trim();
-    if(!val) return;
-    appendMessage("own-msg", val);
-    ws.send(JSON.stringify({ type:"send", from: MY_ID, to: TARGET_ID, message: val }));
-    input.value="";
-}
-
-function sendFile(id, label){
-    const fileInput = document.getElementById(id);
-    const file = fileInput.files[0];
-    if(!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-        ws.send(JSON.stringify({ type:"binary", to: TARGET_ID }));
-        ws.send(reader.result);
-    };
-    reader.onloadend = () => {
-        const li = appendMessage("own-msg", `Sent ${label}: `);
-        const url = URL.createObjectURL(file);
-        if(file.type.startsWith("image")){
-            const img=document.createElement("img"); img.src=url; img.style.maxWidth="100%"; li.appendChild(img);
-        } else if(file.type.startsWith("video")){
-            const v=document.createElement("video"); v.src=url; v.controls=true; v.style.maxWidth="100%"; li.appendChild(v);
-        } else {
-            const a=document.createElement("a"); a.href=url; a.target="_blank"; a.textContent="File"; a.style.color="white"; li.appendChild(a);
-        }
-    };
-    reader.readAsArrayBuffer(file);
-    fileInput.value="";
-}
-
-/* ============================= */
-/* BINARY HANDLER (KEPT AS IS)   */
-/* ============================= */
-async function handleBinary(data) {
-    const arrayBuffer = await data.arrayBuffer();
-    const uint8 = new Uint8Array(arrayBuffer);
-    let mimeType = "application/octet-stream";
-    
-    // Simple magic byte detection
-    if (uint8[0] === 0x25 && uint8[1] === 0x50) mimeType = "application/pdf";
-    else if (uint8[0] === 0x89) mimeType = "image/png";
-    else if (uint8[0] === 0xFF) mimeType = "image/jpeg";
-    else if (uint8[0] === 0x1A) mimeType = "video/webm";
-
-    const blob = new Blob([arrayBuffer], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const li = appendMessage("them-msg", "Received: ");
-
-    if (mimeType.startsWith("image")) {
-        const img = document.createElement("img"); img.src = url; img.style.maxWidth = "100%"; li.appendChild(img);
-    } else if (mimeType.startsWith("video")) {
-        const v = document.createElement("video"); v.src = url; v.controls = true; v.style.maxWidth = "100%"; li.appendChild(v);
-    } else if (mimeType.startsWith("audio")) {
-        const a = document.createElement("audio"); a.src = url; a.controls = true; li.appendChild(a);
-    } else {
-        const a = document.createElement("a"); a.href = url; a.textContent = "Open File"; li.appendChild(a);
-    }
-}
-
-/* ============================= */
-/* VOICE / CAMERA / WEBRTC       */
-/* ============================= */
-const recordBtn=document.getElementById("recordBtn");
-recordBtn.onclick=async()=>{
-    if(recordBtn.textContent==="Start Recording"){
-        audioChunks=[];
-        const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-        mediaRecorder=new MediaRecorder(stream);
-        mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
-        mediaRecorder.start();
-        recordBtn.textContent="Stop Recording";
-        recordBtn.style.color="red";
-    } else {
-        mediaRecorder.stop();
-        mediaRecorder.onstop=()=>{
-            recordBtn.textContent="Start Recording";
-            recordBtn.style.color="";
-            document.getElementById("sendVoiceBtn").disabled=false;
-        };
-    }
-};
-
-function sendVoice(){
-    const blob = new Blob(audioChunks, { type: "audio/webm" });
-    const url = URL.createObjectURL(blob);
-    const li = appendMessage("own-msg", "");
-    const audio = document.createElement("audio"); audio.src = url; audio.controls = true;
-    li.appendChild(audio);
-
-    const reader = new FileReader();
-    reader.onload = () => {
-        ws.send(JSON.stringify({ type: "binary", from: MY_ID, to: TARGET_ID }));
-        ws.send(reader.result);
-    };
-    reader.readAsArrayBuffer(blob);
-    document.getElementById("sendVoiceBtn").disabled = true;
-}
-
-async function takePhoto(){
-    const video=document.getElementById("cameraPreview");
-    video.style.display="block";
-    const stream=await navigator.mediaDevices.getUserMedia({video:true});
-    video.srcObject=stream;
-    await video.play();
-    const canvas=document.createElement("canvas");
-    canvas.width=video.videoWidth; canvas.height=video.videoHeight;
-    canvas.getContext("2d").drawImage(video,0,0);
-    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
-    ws.send(JSON.stringify({ type:"binary", from: MY_ID, to: TARGET_ID }));
-    ws.send(await blob.arrayBuffer());
-    stream.getTracks().forEach(t=>t.stop());
-    video.style.display="none";
-    appendMessage("own-msg", "Sent a photo.");
-}
-
-async function createPeer(){
-    pc=new RTCPeerConnection(config);
-    pc.onicecandidate=e=>{
-        if(e.candidate) ws.send(JSON.stringify({ type:"ice", from: MY_ID, to: TARGET_ID, candidate:e.candidate }));
-    };
-    pc.ontrack=e=>{ document.getElementById("remoteVideo").srcObject=e.streams[0]; };
-    if(localStream) localStream.getTracks().forEach(track=>pc.addTrack(track,localStream));
-}
-
-async function startCall(){
-    document.getElementById("callArea").style.display = "flex";
-    localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
-    document.getElementById("localVideo").srcObject=localStream;
-    await createPeer();
-    const offer=await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    ws.send(JSON.stringify({ type:"offer", from: MY_ID, to: TARGET_ID, offer:offer }));
-}
-</script>
+    <script>
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            let state = 'stack'; 
+            let direction = 'to-left';
+            card.addEventListener('click', () => {
+                if (state === 'stack') {
+                    card.classList.add('on-center'); state = 'center'; direction = 'to-left';
+                } else if (state === 'center' && direction === 'to-left') {
+                    card.classList.remove('on-center'); card.classList.add('on-left'); state = 'left';
+                } else if (state === 'left') {
+                    card.classList.remove('on-left'); card.classList.add('on-center'); state = 'center'; direction = 'to-right';
+                } else if (state === 'center' && direction === 'to-right') {
+                    card.classList.remove('on-center'); state = 'stack';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
