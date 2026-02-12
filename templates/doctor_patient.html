@@ -5,7 +5,7 @@
   <title>Doctor Profile</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="../static/drprofileseenbypatient.css">
+  <link rel="stylesheet" href="../static/doctor+patient.css">
 </head>
 <body>
 
@@ -34,7 +34,7 @@
 
     <div class="name-header">
         <h1 class="doctor-name">{{ doctor.name }}</h1>
-        <a href="/chat/{{ doctor.id }}" class="message-btn" title="Message Doctor">
+        <a href="{{url_for('routes.final', phone=doctor.phone)}}" class="message-btn" title="Message Doctor">
             <i class="fas fa-comment-dots"></i>
         </a>
     </div>
@@ -95,13 +95,13 @@
       <p>{{ doctor.about }}</p>
     </section>
 
-    <section class="contact-section">
+    <!-- <section class="contact-section">
       <h2>Contact Me</h2>
       <div class="contact-icons">
         <a href="{{ doctor.facebook }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
         <a href="https://wa.me/{{ doctor.whatsapp }}" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
       </div>
-    </section>
+    </section> -->
 
   </main>
 

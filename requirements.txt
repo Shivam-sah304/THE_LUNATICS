@@ -1,0 +1,9 @@
+websockets
+flask
+flask_sqlalchemy
+selenium
+undetected-chromedriver
+fake-useragent
+setuptools
+wheel
+flask-cors

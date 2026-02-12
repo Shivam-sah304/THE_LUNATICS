@@ -4,11 +4,7 @@
 <html>
 <head>
   <title>WebSocket + WebRTC Chat</title>
-  
 </head>
-<style>
-  
-</style>
 <body>
 
 <h2>Multi-Media Chat + Real-Time Call</h2>
@@ -18,25 +14,24 @@
 
 <div>
   <h3>Text & File Chat</h3>
-<button onclick="handleSend()">Send</button>
 
-<input id="msgInput" type="text" placeholder="Type message..." />
-<br><br>
+  <input id="msgInput" type="text" placeholder="Type message..." />
+  <button onclick="sendText()">Send Text</button><br><br>
 
-<input id="imgInput" type="file" accept="image/*" />
-<br><br>
+  <input id="imgInput" type="file" accept="image/*" />
+  <button onclick="sendFile('imgInput','image')">Send Image</button><br><br>
 
-<input id="videoInput" type="file" accept="video/*" />
-<br><br>
+  <input id="videoInput" type="file" accept="video/*" />
+  <button onclick="sendFile('videoInput','video')">Send Video</button><br><br>
 
-<input id="pdfInput" type="file" accept="application/pdf" />
-<br><br>
+  <input id="pdfInput" type="file" accept="application/pdf" />
+  <button onclick="sendFile('pdfInput','PDF')">Send PDF</button><br><br>
 
-<button onclick="takePhoto()">Take Photo</button>
-<video id="cameraPreview" width="200" autoplay style="display:none;"></video>
-<br><br>
+  <button onclick="takePhoto()">Take Photo</button>
+  <video id="cameraPreview" width="200" autoplay style="display:none;"></video><br><br>
 
-<button id="recordBtn">Start Recording</button>
+  <button id="recordBtn">Start Recording</button>
+  <button id="sendVoiceBtn" onclick="sendVoice()" disabled>Send Voice</button><br><br>
 
   <ul id="chat"></ul>
 </div>
@@ -52,53 +47,17 @@
 
 <script>
 
-  function handleSend() {
-
-  const text = document.getElementById("msgInput").value.trim();
-  const imgFile = document.getElementById("imgInput").files[0];
-  const videoFile = document.getElementById("videoInput").files[0];
-  const pdfFile = document.getElementById("pdfInput").files[0];
-
-  //  TEXT
-  if (text !== "") {
-    sendText();
-    return;
-  }
-
-  // IMAGE
-  if (imgFile) {
-    sendFile("imgInput", "image");
-    return;
-  }
-
-  // VIDEO
-  if (videoFile) {
-    sendFile("videoInput", "video");
-    return;
-  }
-
-  // PDF
-  if (pdfFile) {
-    sendFile("pdfInput", "PDF");
-    return;
-  }
-
-  //  VOICE (if recorded)
-  if (audioChunks && audioChunks.length > 0) {
-    sendVoice();
-    return;
-  }
-
-  alert("Nothing to send");
-}
+const MY_ID = {{ data.my_id | tojson }};
+let TARGET_ID = {{ data.target_id | tojson }};  // null if not provided
 
 /* ============================= */
 /* CONFIGURATION */
 /* ============================= */
 
-const MY_ID = "samir";      // change per browser
-let TARGET_ID = "sishir";   // MUST be let (important)
-
+// const MY_ID = "{{ data.my_id }}";
+// let TARGET_ID = "{{ data.target_id }}"; 
+ // MUST be let (important)
+console.log(MY_ID)
 document.getElementById("myIdDisplay").textContent = MY_ID;
 document.getElementById("targetIdDisplay").textContent = TARGET_ID;
 
@@ -123,21 +82,46 @@ ws.onopen = () => {
 /* ============================= */
 /* MESSAGE RECEIVER */
 /* ============================= */
+
+
 ws.onmessage = async (event) => {
 
   // STRING MESSAGE (JSON or TEXT)
   if (typeof event.data === "string") {
 
-    let msg;
-    try {
-      msg = JSON.parse(event.data);
-    } 
-    catch {
-      const li = document.createElement("li");
-      li.textContent = "Received: " + event.data;
-      document.getElementById("chat").appendChild(li);
-      return;
-    }
+          let msg;
+      try {
+          msg = JSON.parse(event.data);  // ✅ remove const
+      } 
+      catch {
+          const li = document.createElement("li");
+          li.textContent = "Received: " + event.data;
+          document.getElementById("chat").appendChild(li);
+          return;
+      }
+
+      // Handle JSON message OUTSIDE catch
+      if (msg.type === "message") {
+          const li = document.createElement("li");
+          li.textContent = msg.from + ": " + msg.message;
+          document.getElementById("chat").appendChild(li);
+          return;
+      }
+
+    // let msg;
+    // try {
+    // const msg = JSON.parse(event.data);
+    // } 
+    // catch {
+      
+    //   if(msg.type === "message"){
+    //     const li = document.createElement("li");
+    //     li.textContent = msg.from + ": " + msg.message;
+    //     document.getElementById("chat").appendChild(li);
+    //   }
+    //   return;
+
+    // }
 
     // -------- FILE INFO --------
     if (msg.type === "file-info") {
@@ -381,6 +365,10 @@ function sendText(){
   const msg = input.value.trim();
   if(!msg) return;
 
+  const li = document.createElement("li");
+  li.textContent = "You: " + msg;
+  document.getElementById("chat").appendChild(li);
+  input.value="";
   ws.send(JSON.stringify({
     type:"send",
     from: MY_ID,
@@ -388,10 +376,7 @@ function sendText(){
     message: msg
   }));
 
-  const li = document.createElement("li");
-  li.textContent = "You: " + msg;
-  document.getElementById("chat").appendChild(li);
-  input.value="";
+  
 }
 
 /* ============================= */

@@ -32,7 +32,7 @@ body {
   border-radius: 12px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.08);
   margin-bottom: 20px;
-  position: relative;
+  position: relative; /* Necessary for menu positioning */
   opacity: 0;
   transform: translateY(20px);
   animation: fadeInUp 0.8s forwards;
@@ -56,7 +56,7 @@ body {
 .menu-dots span {
   width: 18px;
   height: 2.5px;
-  background: #444; 
+  background: #444; /* Greyish Black */
   border-radius: 5px;
 }
 
@@ -71,6 +71,7 @@ body {
     border-radius: 8px;
     z-index: 100;
     border: 1px solid #eee;
+    /* overflow: hidden; */ /* REMOVE OR COMMENT THIS LINE */
 }
 
 .dropdown-content.active {
@@ -196,25 +197,40 @@ textarea {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@media(max-width: 600px) {
+  .profile-card { padding: 25px 15px; }
+  .profile-photo img { width: 120px; height: 120px; }
+}
+
+
+
+
 .Doctor-rating-display {
     margin-top: 8px;
     font-size: 16px;
-    color: #cbd5e0; 
+    color: #cbd5e0; /* Default grey for empty stars */
 }
 
 .Doctor-rating-display .fas.gold {
-    color: #f6ad55; 
+    color: #f6ad55; /* Gold/Orange for filled stars */
 }
 
+.Rating-num {
+    font-size: 13px;
+    color: #666;
+    margin-left: 5px;
+    font-weight: bold;
+}
+/* --- UPDATED SUB-MENU ANIMATION --- */
 .sub-menu {
     max-height: 0;
     opacity: 0;
-    overflow: hidden; 
+    overflow: hidden; /* This stays hidden so the buttons don't show early */
     transition: max-height 0.4s ease, opacity 0.3s ease;
     background: #f9f9f9;
 }
 .sub-menu.active {
-    max-height: 150px; 
+    max-height: 150px; /* Adjust to fit your 3 buttons */
     opacity: 1;
 }
 .sub-menu button {
@@ -229,64 +245,33 @@ textarea {
     margin-bottom: 10px;
 }
 
-.status-dot {
+.status-indicator {
     position: absolute;
-    bottom: 10px; 
-    right: 10px; 
+    bottom: 15px;      /* Adjusts vertical position on the curve */
+    right: 15px;       /* Adjusts horizontal position on the curve */
     width: 18px;
     height: 18px;
-    background-color: #2ecc71; 
-    border: 3px solid #ffffff; 
+    background-color: #2ecc71; /* Green color */
+    border: 3px solid #ffffff; /* White ring to separate from photo */
     border-radius: 50%;
     z-index: 10;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* --- ADDED ONLY THESE NEW FEATURES BELOW --- */
-
-.msg-btn {
-    background: #2563eb;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px; /* Rounded rectangle */
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.popup-overlay {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 9999; visibility: hidden; opacity: 0; transition: all 0.3s ease;
-}
-.popup-overlay.show { visibility: visible; opacity: 1; }
-.popup-content {
-    background: white; padding: 25px; border-radius: 12px; width: 85%;
-    max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    transform: scale(0.8); transition: transform 0.3s ease;
-}
-.popup-overlay.show .popup-content { transform: scale(1); }
-.popup-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
-.btn-no { background: #edf2f7; color: #4a5568; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; flex: 1; }
-.btn-yes { background: #e53e3e; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; flex: 1; }
-
-
-/* --- CSS TO CENTER ALIGNED PICTURE ONLY --- */
-.profile-photo {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    width: 100% !important;
-}
-
-.photo-wrapper {
-    margin: 0 auto !important;
-    display: block !important;
-}
-
 .profile-photo img {
     margin: 0 auto !important;
-    display: block !important;
+    display: block;
+}
+
+.status-dot {
+    position: absolute;
+    bottom: 10px;      /* Distance from bottom edge */
+    right: 10px;       /* Distance from right edge */
+    width: 18px;
+    height: 18px;
+    background-color: #2ecc71; /* Green */
+    border: 3px solid #ffffff; /* White border to separate from photo */
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }

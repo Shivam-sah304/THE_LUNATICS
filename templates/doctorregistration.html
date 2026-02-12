@@ -4,11 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Doctor Registration Form</title>
-  <link rel="stylesheet" href="..\static\doctorregistration.css">
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='personal1.css') }}"> -->
+  <link rel="stylesheet" href="../static/doctorregistration.css">
 </head>
 <body>
 
-  <form class="form-card" id="doctorRegistrationForm" novalidate>
+  <form class="form-card" id="doctorRegistrationForm" method="POST"
+      action="{{ url_for('routes.doctorregistration') }}" novalidate>
+
+
     <h2>Doctor Registration</h2>
 
     <div class="section">
@@ -27,9 +31,9 @@
     </div>
 
 
-
+<!-- 
     <div class="section">
-      <h3>Personal Information</h3>
+      <h3>Personal Information</h3> -->
       
       <div class="form-group">
         <input type="tel" name="phone" id="phone" required />
@@ -54,9 +58,10 @@
       
       <div class="form-group">
         <select name="education" id="education" required>
-          <option value="" disabled selected></option>
-          <option value="undergraduate">Undergraduate (MBBS)</option>
+          <option value="disabled selected" ></option>
+          <option value="MBBS">MBBS</option>
           <option value="postgraduate">Postgraduate</option>
+          <option value="postgraduate">HA</option>
         </select>
         <label for="education">Highest Education*</label>
         <small class="error">Please select your education</small>
@@ -75,6 +80,12 @@
       </div>
 
 
+      <!-- <div class="form-group">
+        <input type="number" name="experience" id="experience" min="0" required />
+        <label for="experience">NMC License Number *</label>
+        <small class="error">Enter years of experience</small>
+      </div>
+    </div> -->
 
 
 
@@ -88,30 +99,18 @@
       </div>
     </div>
 
-
-    <!-- add reference here -->
-   <button type="submit"><a href=" add refernce here" style="text-decoration: none;color: white;">Submit Personal Details</button>
-
-     </div>
-
-
-   
-        <div class="subtitle" style="margin-top: 20px; margin-left:90px">
-
-              <!-- add reference here -->
-        <span style="color:grey">Already have an account? </span><a href="kgsadvjhvs" style="color: #3182ce; text-decoration: none; font-weight: bold; ">Login here</a>
-    </div>
-    
-    </div>
+   <button type="submit" style="text-decoration: none; color: white;">
+  Submit Personal Details
+</button>
   </form>
+
 <script>
 const form = document.getElementById('doctorRegistrationForm');
 const eduSelect = document.getElementById('education');
 const specGroup = document.getElementById('spec-group');
 const specInput = document.getElementById('specialization');
-const phoneInput = document.getElementById('phone');
 
-// 1. Handle Conditional Specialization Box
+// Show/hide specialization
 eduSelect.addEventListener('change', function() {
     if (this.value === 'postgraduate') {
         specGroup.style.display = 'block';
@@ -125,66 +124,47 @@ eduSelect.addEventListener('change', function() {
     this.classList.add('not-empty');
 });
 
-// 2. Prevent non-numeric characters in Phone field immediately
-phoneInput.addEventListener('keypress', (e) => {
-    if (!/[0-9]/.test(e.key)) {
-        e.preventDefault();
-    }
-});
-
-// 3. Handle Label Floating
+// Handle floating labels
 const inputs = document.querySelectorAll('input, select, textarea');
-inputs.forEach((input) => {
+inputs.forEach(input => {
     input.addEventListener('input', () => {
-        if (input.value !== '') {
-            input.classList.add('not-empty');
-        } else {
-            input.classList.remove('not-empty');
-        }
+        if (input.value !== '') input.classList.add('not-empty');
+        else input.classList.remove('not-empty');
     });
 });
 
-// 4. Validation and Submission Logic
+// Validation & submission
 form.addEventListener('submit', (e) => {
-    e.preventDefault();
     let isFormValid = true;
 
-    // Strict validation patterns
     const patterns = {
         fullname: /^[a-zA-Z\s]{2,50}$/,
-        // Strict Email: requires something@something.extension
-        email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-        // Phone: Digits only, 7 to 15 characters
-        phone: /^[0-9]{7,15}$/
+        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        phone: /^[0-9\+\-\s]{7,15}$/
     };
 
-    inputs.forEach((input) => {
-        // Skip hidden fields only
-        if (input.parentElement.style.display === 'none') return;
+    inputs.forEach(input => {
+        if (input.id === 'about') return; // optional
+        if (input.parentElement.style.display === 'none') return; // hidden
 
         const errorMsg = input.parentElement.querySelector('.error');
         let isValid = true;
         let message = "This field is required";
 
-        // A. COMPULSORY CHECK: Check if empty or only whitespace
-        if (!input.value || !input.value.trim()) {
-            isValid = false;
-        } 
-        // B. PATTERN CHECKS
+        if (!input.value || !input.value.trim()) isValid = false;
         else if (input.name === 'fullname' && !patterns.fullname.test(input.value)) {
             isValid = false;
             message = "Letters only (no numbers)";
         }
         else if (input.type === 'email' && !patterns.email.test(input.value)) {
             isValid = false;
-            message = "Enter a valid email (e.g., name@mail.com)";
+            message = "Enter a valid email address";
         }
         else if (input.name === 'phone' && !patterns.phone.test(input.value)) {
             isValid = false;
-            message = "Enter a valid 7-15 digit phone number";
+            message = "Enter a valid phone number";
         }
 
-        // Apply visual error states
         if (!isValid) {
             isFormValid = false;
             input.classList.add('invalid');
@@ -194,21 +174,15 @@ form.addEventListener('submit', (e) => {
             }
         } else {
             input.classList.remove('invalid');
-            if (errorMsg) {
-                errorMsg.style.display = 'none';
-            }
+            if (errorMsg) errorMsg.style.display = 'none';
         }
     });
 
-    if (isFormValid) {
-        form.classList.add('zoom-submit');
-        setTimeout(() => {
-            window.location.href = "validation.html";
-        }, 500);
+    if (!isFormValid) {
+        e.preventDefault(); // stop submission if invalid
     }
-});</script>
-
-  
-
+    // If valid, form submits naturally to Flask
+});
+</script>
 </body>
 </html>

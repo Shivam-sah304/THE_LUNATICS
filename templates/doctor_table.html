@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctors Directory</title>
-    <link rel="stylesheet" href="..\static\patientlist.css">
+    <link rel="stylesheet" href="..\static\doctor_table.css">
 </head>
 <body>
 
@@ -28,15 +28,22 @@
                     <td>{{ doctor.phone }}</td>
                     <td>
                         <div class="profile-wrapper">
-                            <a href="{{ url_for('routes.drprofile', id=doctor.id) }}">Visit Profile</a>
-<!-- here replace the img src by doctor photo coming from backend -->
-                            <div class="hover-preview">
-    <img src="{{ url_for('static', filename=doctor.photo) }}"
-     alt="Doctor"
-     onerror="this.onerror=null; this.src='https://via.placeholder.com/100?text=No+User';"
-     style="width:100px; height:100px; object-fit:cover; border-radius:50%;">
+    <a href="{{ url_for('routes.doctor_patient', phone=doctor.phone) }}">Visit Profile</a>
+
+    <div class="hover-preview">
+        {% if doctor.photo %}
+            <img
+                src="{{ url_for('static', filename=doctor.photo) }}"
+                alt="Doctor"
+                style="width:100px; height:100px; object-fit:cover; border-radius:50%;">
+        {% else %}
+            <img
+                src="https://via.placeholder.com/100?text=No+User"
+                alt="No Photo"
+                style="width:100px; height:100px; object-fit:cover; border-radius:50%;">
+        {% endif %}
+    </div>
 </div>
-                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -45,6 +52,18 @@
     </div>
 
     <script>
+
+        const MY_ID = "{{ request.args.get('user_id') or session.get('user_phone') }}";
+
+        if(MY_ID){  // only run WS if logged in
+            const ws = new WebSocket("ws://10.61.200.106:8080");
+
+            ws.onopen = () => {
+                console.log("Connected");
+                ws.send(JSON.stringify({ type: "auth", user_id: MY_ID }));
+            };
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             const rows = document.querySelectorAll('.dr-row');
             rows.forEach((row, i) => {

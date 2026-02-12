@@ -4,15 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Emergency Contact Registration</title>
-    <link rel="stylesheet" href="..\static\patientcontact.css">
+    <link rel="stylesheet" href="../static/patient_contact.css">
 </head>
 <body>
 
-
-    
-
-    <!-- add reference -->
-  <form class="form-card" id="contactRegistrationForm" action=" " method="POST" novalidate>
+  <form class="form-card" id="contactRegistrationForm" method="POST" action="{{ url_for('routes.patient_contact') }}"  novalidate>
     <h2>Emergency Contacts</h2>
 
     <div class="section">
@@ -27,12 +23,12 @@
         
         <div class="extra-fields hidden-field" id="extra1">
             <div class="form-group">
-              <input type="tel" name="contact1_phone" id="contact1_phone" required />
+              <input type="tel" name="contact1_phone" id="contact1_phone"  />
               <label for="contact1_phone">Contact Number (Person 1)*</label>
               <small class="error">Phone number is required</small>
             </div>
             <div class="form-group">
-              <input type="text" name="contact1_relation" id="contact1_relation" required />
+              <input type="text" name="contact1_relation" id="contact1_relation" />
               <label for="contact1_relation">Relation (Person 1)*</label>
               <small class="error">Relation is required</small>
             </div>
@@ -76,13 +72,10 @@
       </div>
     </div>
 
-    <button type="submit"><a href="">Save Contacts</a></button>
+    <button type="submit">Save Contacts</button>
 
      <div class="subtitle" style="margin-top: 20px; margin-left:100px">
- 
- 
-        <!-- add reference -->
-        Already have an account? <a href="" style="color: #3182ce; text-decoration: none; font-weight: bold;">Login here</a>
+        Already have an account? <a href="/patientlogin" style="color: #3182ce; text-decoration: none; font-weight: bold;">Login here</a>
     </div>
   </form>
 
@@ -97,7 +90,7 @@
             
             // Phone restriction
             if (input.type === 'tel') {
-                input.value = input.value.replace(/[^0-9+]/g, '');
+                input.value = input.value.replace(/[^0-9]/g, '');
             }
         });
 

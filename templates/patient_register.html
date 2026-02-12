@@ -4,20 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Patient Registration</title>
-    <link rel="stylesheet" href="..\static\patientregistration.css">
+    <link rel="stylesheet" href="../static/patient_register.css">
 </head>
 <body>
 
-    <!-- add reference here -->
-
-
-
-
-  <form class="form-card" id="patientRegistrationForm" action="" method="POST" novalidate>
+  <form class="form-card" id="patientRegistrationForm" method="POST" action="{{ url_for('routes.patient_register') }}"  novalidate>
     <h2>Patient Registration</h2>
-
-
-
 
     <div class="section">
       <h3>Personal Information</h3>
@@ -64,14 +56,13 @@
       </div>
     </div>
 
-
-
-    <!-- add refernce here -->
     <button type="submit">Register</button>
 
      <div class="subtitle" style="margin-top: 20px; margin-left:100px">
-        Already have an account? <a href="" style="color: #3182ce; text-decoration: none; font-weight: bold;">Login here</a>
+        Already have an account? <a href="/patientlogin" style="color: #3182ce; text-decoration: none; font-weight: bold;">Login here</a>
+        </div>
   </form>
+  </body>
 
 <script>
     const form = document.getElementById('patientRegistrationForm');
@@ -80,7 +71,7 @@
 
     // 1. Strict Restriction: Prevent non-numeric characters in Phone field
     phoneInput.addEventListener('input', function(e) {
-        this.value = this.value.replace(/[^0-9+]/g, ''); 
+        this.value = this.value.replace(/[^0-9]/g, '');
     });
 
     // 2. Handle Label Floating
