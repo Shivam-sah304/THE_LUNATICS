@@ -1,3 +1,5 @@
+<!-- true  -->
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,11 +9,9 @@
 
 <h2>Multi-Media Chat + Real-Time Call</h2>
 
-<!-- DISPLAY IDS -->
 <p>Your ID: <span id="myIdDisplay">...</span></p>
 <p>Chatting with: <span id="targetIdDisplay">...</span></p>
 
-<!-- CHAT SECTION -->
 <div>
   <h3>Text & File Chat</h3>
 
@@ -38,7 +38,6 @@
 
 <hr>
 
-<!-- VIDEO CALL SECTION -->
 <div>
   <h3>Video + Voice Call</h3>
   <button onclick="startCall()">Start Call</button><br><br>
@@ -47,62 +46,234 @@
 </div>
 
 <script>
+
 /* ============================= */
 /* CONFIGURATION */
 /* ============================= */
-const MY_ID = "samirdai";      // change per browser
-const TARGET_ID = "samirdai";   // change to who you want to chat with
+
+const MY_ID = "sishir";      // change per browser
+let TARGET_ID = "samir";   // MUST be let (important)
 
 document.getElementById("myIdDisplay").textContent = MY_ID;
 document.getElementById("targetIdDisplay").textContent = TARGET_ID;
 
 const ws = new WebSocket("ws://10.61.200.106:8080");
+
 let mediaRecorder, audioChunks = [];
+let pc, localStream;
+
+const config = {
+  iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+};
 
 /* ============================= */
 /* CONNECTION */
 /* ============================= */
+
 ws.onopen = () => {
   console.log("Connected");
   ws.send(JSON.stringify({ type: "auth", user_id: MY_ID }));
 };
 
+/* ============================= */
+/* MESSAGE RECEIVER */
+/* ============================= */
 ws.onmessage = async (event) => {
 
-  // TEXT MESSAGE
+  // STRING MESSAGE (JSON or TEXT)
   if (typeof event.data === "string") {
-    try {
-      const msg = JSON.parse(event.data);
-      if (msg.type === "offer" || msg.type === "answer" || msg.type === "ice") return;
-    } catch {}
 
-    const li = document.createElement("li");
-    li.textContent = "Received: " + event.data;
-    document.getElementById("chat").appendChild(li);
+    let msg;
+    try {
+      msg = JSON.parse(event.data);
+    } 
+    catch {
+      const li = document.createElement("li");
+      li.textContent = "Received: " + event.data;
+      document.getElementById("chat").appendChild(li);
+      return;
+    }
+
+    // -------- FILE INFO --------
+    if (msg.type === "file-info") {
+      incomingFileType = msg.fileType;
+      return;
+    }
+
+    // -------- WEBRTC --------
+    if (msg.type === "offer") {
+
+      const li = document.createElement("li");
+      li.textContent = "Incoming call from " + msg.from;
+      document.getElementById("chat").appendChild(li);
+
+      TARGET_ID = msg.from;
+      document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+
+      await createPeer();
+      await pc.setRemoteDescription(msg.offer);
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+
+      ws.send(JSON.stringify({
+        type: "answer",
+        from: MY_ID,
+        to: TARGET_ID,
+        answer: answer
+      }));
+    }
+
+    else if (msg.type === "answer") {
+      await pc.setRemoteDescription(msg.answer);
+    }
+
+    else if (msg.type === "ice") {
+      await pc.addIceCandidate(msg.candidate);
+    }
+
+    return;
   }
 
   // BINARY MESSAGE
   else {
     const arrayBuffer = await event.data.arrayBuffer();
-    const blob = new Blob([arrayBuffer]);
+
+    // Use received file type
+    const blob = new Blob([arrayBuffer], { type: incomingFileType });
     const url = URL.createObjectURL(blob);
 
     const li = document.createElement("li");
     li.textContent = "Received File: ";
 
-    // Try auto-detect rendering
-    const img = document.createElement("img"); img.src = url; img.style.maxWidth = "200px"; img.onerror = () => img.remove();
-    const video = document.createElement("video"); video.src = url; video.controls = true; video.style.maxWidth="300px"; video.onerror = () => video.remove();
-    const audio = document.createElement("audio"); audio.src = url; audio.controls = true; audio.onerror = () => audio.remove();
+    // IMAGE
+    if (incomingFileType && incomingFileType.startsWith("image")) {
+      const img = document.createElement("img");
+      img.src = url;
+      img.style.maxWidth = "200px";
+      li.appendChild(img);
+    }
 
-    li.appendChild(img); li.appendChild(video); li.appendChild(audio);
+    // VIDEO
+    else if (incomingFileType && incomingFileType.startsWith("video")) {
+      const video = document.createElement("video");
+      video.src = url;
+      video.controls = true;
+      video.style.maxWidth = "300px";
+      li.appendChild(video);
+    }
+
+    // AUDIO
+    else if (incomingFileType && incomingFileType.startsWith("audio")) {
+      const audio = document.createElement("audio");
+      audio.src = url;
+      audio.controls = true;
+      li.appendChild(audio);
+    }
+
+    // PDF
+    else if (incomingFileType === "application/pdf") {
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.textContent = "Open PDF";
+      li.appendChild(a);
+    }
+
     document.getElementById("chat").appendChild(li);
   }
 };
 
+
+
+// ws.onmessage = async (event) => {
+
+//   // STRING MESSAGE (JSON or TEXT)
+//   if (typeof event.data === "string") {
+
+//     let msg;
+//     try {
+//       msg = JSON.parse(event.data);
+//     } catch {
+//       const li = document.createElement("li");
+//       li.textContent = "Received: " + event.data;
+//       document.getElementById("chat").appendChild(li);
+//       return;
+//     }
+
+//     // -------- WEBRTC --------
+//     if (msg.type === "offer") {
+
+//       const li = document.createElement("li");
+//       li.textContent = "Incoming call from " + msg.from;
+//       document.getElementById("chat").appendChild(li);
+
+//       TARGET_ID = msg.from;
+//       document.getElementById("targetIdDisplay").textContent = TARGET_ID;
+
+//       await createPeer();
+//       await pc.setRemoteDescription(msg.offer);
+
+//       const answer = await pc.createAnswer();
+//       await pc.setLocalDescription(answer);
+
+//       ws.send(JSON.stringify({
+//         type: "answer",
+//         from: MY_ID,
+//         to: TARGET_ID,
+//         answer: answer
+//       }));
+//     }
+
+//     else if (msg.type === "answer") {
+//       await pc.setRemoteDescription(msg.answer);
+//     }
+
+//     else if (msg.type === "ice") {
+//       await pc.addIceCandidate(msg.candidate);
+//     }
+
+//     return;
+//   }
+
+//   // BINARY MESSAGE
+//   else {
+//     const arrayBuffer = await event.data.arrayBuffer();
+//     const blob = new Blob([arrayBuffer]);
+//     const url = URL.createObjectURL(blob);
+
+//     const li = document.createElement("li");
+//     li.textContent = "Received File: ";
+
+//     const img = document.createElement("img");
+//     img.src = url;
+//     img.style.maxWidth = "200px";
+//     img.onerror = () => img.remove();
+
+//     const video = document.createElement("video");
+//     video.src = url;
+//     video.controls = true;
+//     video.style.maxWidth="300px";
+//     video.onerror = () => video.remove();
+
+//     const audio = document.createElement("audio");
+//     audio.src = url;
+//     audio.controls = true;
+//     audio.onerror = () => audio.remove();
+
+//     li.appendChild(img);
+//     li.appendChild(video);
+//     li.appendChild(audio);
+
+//     document.getElementById("chat").appendChild(li);
+//   }
+// };
+
+
 /* ============================= */
 /* SEND TEXT */
 /* ============================= */
+
 function sendText(){
   const input = document.getElementById("msgInput");
   const msg = input.value.trim();
@@ -110,6 +281,7 @@ function sendText(){
 
   ws.send(JSON.stringify({
     type:"send",
+    from: MY_ID,
     to: TARGET_ID,
     message: msg
   }));
@@ -123,6 +295,27 @@ function sendText(){
 /* ============================= */
 /* SEND FILE */
 /* ============================= */
+
+// function sendFile(id,label){
+//   const fileInput = document.getElementById(id);
+//   const file = fileInput.files[0];
+//   if(!file) return alert(`Select a ${label}`);
+
+//   const reader = new FileReader();
+//   reader.onload = () => {
+//     ws.send(JSON.stringify({ type:"binary", from: MY_ID, to: TARGET_ID }));
+//     ws.send(reader.result);
+//   };
+
+//   reader.readAsArrayBuffer(file);
+
+//   const li = document.createElement("li");
+//   li.textContent = `You sent ${label}`;
+//   document.getElementById("chat").appendChild(li);
+
+//   fileInput.value="";
+// }
+
 function sendFile(id,label){
   const fileInput = document.getElementById(id);
   const file = fileInput.files[0];
@@ -159,18 +352,23 @@ function sendFile(id,label){
 /* ============================= */
 /* CAMERA */
 /* ============================= */
+
 async function takePhoto(){
-  const video=document.getElementById("cameraPreview"); video.style.display="block";
+  const video=document.getElementById("cameraPreview");
+  video.style.display="block";
 
   const stream=await navigator.mediaDevices.getUserMedia({video:true});
-  video.srcObject=stream; await video.play();
+  video.srcObject=stream;
+  await video.play();
 
-  const canvas=document.createElement("canvas"); canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+  const canvas=document.createElement("canvas");
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
   canvas.getContext("2d").drawImage(video,0,0);
 
   const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
 
-  ws.send(JSON.stringify({ type:"binary", to: TARGET_ID }));
+  ws.send(JSON.stringify({ type:"binary", from: MY_ID, to: TARGET_ID }));
   ws.send(await blob.arrayBuffer());
 
   stream.getTracks().forEach(t=>t.stop());
@@ -180,19 +378,24 @@ async function takePhoto(){
 /* ============================= */
 /* VOICE */
 /* ============================= */
+
 const recordBtn=document.getElementById("recordBtn");
 const sendVoiceBtn=document.getElementById("sendVoiceBtn");
 
 recordBtn.onclick=async()=>{
   if(recordBtn.textContent==="Start Recording"){
-    audioChunks=[]; const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    audioChunks=[];
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
     mediaRecorder=new MediaRecorder(stream);
     mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
     mediaRecorder.start();
     recordBtn.textContent="Stop Recording";
   } else {
     mediaRecorder.stop();
-    mediaRecorder.onstop=()=>{ recordBtn.textContent="Start Recording"; sendVoiceBtn.disabled=false; };
+    mediaRecorder.onstop=()=>{
+      recordBtn.textContent="Start Recording";
+      sendVoiceBtn.disabled=false;
+    };
   }
 };
 
@@ -200,7 +403,7 @@ function sendVoice(){
   const blob=new Blob(audioChunks,{type:"audio/webm"});
   const reader=new FileReader();
   reader.onload=()=>{
-    ws.send(JSON.stringify({ type:"binary", to: TARGET_ID }));
+    ws.send(JSON.stringify({ type:"binary", from: MY_ID, to: TARGET_ID }));
     ws.send(reader.result);
   };
   reader.readAsArrayBuffer(blob);
@@ -210,59 +413,47 @@ function sendVoice(){
 /* ============================= */
 /* WEBRTC */
 /* ============================= */
-let pc, localStream;
-const config={iceServers:[{urls:"stun:stun.l.google.com:19302"}]};
-
-
-
-
-ws.addEventListener("message", async event=>{
-  if(typeof event.data!=="string") return;
-  const msg=JSON.parse(event.data);
-
-  if(msg.type==="offer"){
-    const li = document.createElement("li");
-    li.textContent = "You have got a call from "+msg.from ;
-    document.getElementById("chat").appendChild(li);
-    // MY_ID = msg.get("to")
-    TARGET_ID = msg.from
-    await createPeer();
-    await pc.setRemoteDescription(msg.offer);
-    // Receiver
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    ws.send(JSON.stringify({
-        type: "answer",
-        from: MY_ID,      // your ID
-        to: TARGET_ID,    // sender of the offer
-        answer: answer
-    }));
-  }
-
-  if(msg.type==="answer") await pc.setRemoteDescription(msg.answer);
-  if(msg.type==="ice") await pc.addIceCandidate(msg.candidate);
-});
 
 async function createPeer(){
   pc=new RTCPeerConnection(config);
-  pc.onicecandidate=e=>{if(e.candidate) ws.send(JSON.stringify({type:"ice",candidate:e.candidate}));};
-  pc.ontrack=e=>document.getElementById("remoteVideo").srcObject=e.streams[0];
-  localStream.getTracks().forEach(track=>pc.addTrack(track,localStream));
+
+  pc.onicecandidate=e=>{
+    if(e.candidate){
+      ws.send(JSON.stringify({
+        type:"ice",
+        from: MY_ID,
+        to: TARGET_ID,
+        candidate:e.candidate
+      }));
+    }
+  };
+
+  pc.ontrack=e=>{
+    document.getElementById("remoteVideo").srcObject=e.streams[0];
+  };
+
+  localStream.getTracks().forEach(track=>{
+    pc.addTrack(track,localStream);
+  });
 }
 
 async function startCall(){
   localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
   document.getElementById("localVideo").srcObject=localStream;
+
   await createPeer();
-  const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    ws.send(JSON.stringify({
-        type: "offer",
-        from: MY_ID,      // your ID
-        to: TARGET_ID,    // recipient ID
-        offer: offer
-    }));
+
+  const offer=await pc.createOffer();
+  await pc.setLocalDescription(offer);
+
+  ws.send(JSON.stringify({
+    type:"offer",
+    from: MY_ID,
+    to: TARGET_ID,
+    offer:offer
+  }));
 }
+
 </script>
 </body>
 </html>
