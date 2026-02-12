@@ -29,10 +29,12 @@
                   </button>
                   <button onclick="location.href='/change_password'">
                       <i class="fas fa-lock"></i> Change Password
-                  </button>
-                  <button onclick="location.href='/delete_account'">
-                      <i class="fas fa-trash"></i> Delete Account
-                  </button>
+                  <form action="/delete_account" method="POST" 
+      onsubmit="return confirm('Are you sure? This cannot be undone.')">
+    <button type="submit">
+        <i class="fas fa-trash"></i> Delete Account
+    </button>
+</form>
               </div>
           </div>
       </div>
