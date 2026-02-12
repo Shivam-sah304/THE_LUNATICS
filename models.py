@@ -46,4 +46,17 @@ class Patient(db.Model):
     def __repr__(self) ->str:
         return f"{self.sno}-{self.name }"
     
-    
+class Rating(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.String, db.ForeignKey('doctor.phone'), nullable=False)
+    star = db.Column(db.Integer, nullable=False)
+    review = db.Column(db.String(500))
+
+
+class Report(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.String(20), db.ForeignKey('doctor.phone'), nullable=False)
+    patient_id = db.Column(db.String(20), db.ForeignKey('patient.phone'), nullable=False)
+    reason = db.Column(db.String(400), nullable=False)
+
+

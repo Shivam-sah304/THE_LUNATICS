@@ -362,11 +362,6 @@
 #         return redirect(url_for("routes.doctor_patient", phone=doctor.phone))
 
 #     return render_template("change_password.html")
-
-
-
-
-
 from flask import Blueprint, render_template, request, redirect, session,url_for,flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -375,7 +370,7 @@ import os
 from fillform import fillform
 from functools import wraps
 
-from models import db, Doctor,Patient
+from models import db, Doctor,Patient,Rating,Report
 
 routes = Blueprint("routes", __name__)
 
@@ -404,7 +399,7 @@ def doctorregistration():
 
     return render_template("doctorregistration.html")
 
-# ---------------- Doctor Validation ----------------
+
 @routes.route("/doctor/doctorvalidation", methods=["GET", "POST"])
 def doctorvalidation():
     temp_doctor = session.get("temp_doctor")
@@ -447,10 +442,10 @@ def doctorvalidation():
 
         return redirect(url_for("routes.doctorpassword"))
 
-    # ✅ Pass temp_doctor to template
+    
     return render_template("doctorvalidation.html", temp_doctor=temp_doctor)
 
-# ---------------- Doctor Password ----------------
+
 @routes.route("/doctor/doctorpassword", methods=["GET", "POST"])
 def doctorpassword():
     temp_doctor = session.get("temp_doctor")
@@ -484,9 +479,7 @@ def doctorpassword():
         db.session.add(doctor)
         db.session.commit()
 
-        # Clear session completely
-        # session.pop("temp_doctor", None)
-        # # session["doctor_phone"] = doctor_p
+        
         session.pop("doctor_phone", None)
         session["doctor_phone"] = doctor.phone 
 
@@ -656,20 +649,6 @@ def user_login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# @routes.route('/get_id')
-# @user_login_required
-# @doctor_login_required
-# def get_id():
-#     doctor_phone = session.get('doctor_phone')
-#     user_phone = session.get('user_phone')
-#     print(doctor_phone, user_phone)
-#     return render_template('chats.html')
-
-
-
-
-
-
 
 @routes.route("/doctor_table")
 @user_login_required
@@ -677,18 +656,25 @@ def doctor_table():
     doctors = Doctor.query.all()
 
     return render_template("doctor_table.html", doctors=doctors)
-
-
+ 
+from sqlalchemy import func
 
 @routes.route("/doctor_patient/<phone>")
-# @user_login_required
 def doctor_patient(phone):
-
+    # Get doctor by phone (primary key)
     doctor = Doctor.query.get_or_404(phone)
-    doctor_phone = phone
-    user_phone = session.get('user_phone')
 
-    return render_template("doctor_patient.html", doctor=doctor) 
+    # Calculate average rating using phone as the reference
+    avg_rating = db.session.query(func.avg(Rating.star))\
+        .filter(Rating.doctor_id == doctor.phone).scalar()  # use doctor.phone
+
+    avg_rating = round(avg_rating, 1) if avg_rating else 0
+
+    return render_template("doctor_patient.html",
+                           doctor=doctor,
+                           avg_rating=avg_rating)
+
+
     
 @routes.route('/final/<phone>')
 @user_login_required
@@ -734,7 +720,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 @routes.route("/change_password", methods=["GET", "POST"])
 def change_password():
-    doctor_phone = session.get("doctor_phone")
+    doctor_phone = session.get("doctor_id")
     doctor = Doctor.query.get_or_404(doctor_phone)
 
     if request.method == "POST":
@@ -757,13 +743,61 @@ def change_password():
 
     return render_template("change_password.html")
 
+@routes.route("/submit_rating", methods=["POST"])
+def submit_rating():
+    doctor_id = request.form.get("doctor_id")  
+    star = request.form.get("star_rating")
+    review = request.form.get("review_text")
+
+    if not star or int(star) == 0:
+        flash("Please select a star rating.")
+        return redirect(request.referrer)
+
+    new_rating = Rating(
+        doctor_id=doctor_id,  
+        star=int(star),
+        review=review
+    )
+
+    db.session.add(new_rating)
+    db.session.commit()
+
+    flash("Rating submitted successfully!")
+    return redirect(request.referrer)
+
+from sqlalchemy import func
+
+@routes.route("/submit_report", methods=["POST"])
+@user_login_required
+def submit_report():
+    doctor_phone = request.form.get("doctor_id")
+    reason = request.form.get("report_text")
+    patient_phone = session.get("user_phone")  
+
+    if not reason or reason.strip() == "":
+        flash("Please provide a reason for the report.")
+        return redirect(request.referrer)
+
+    new_report = Report(
+        doctor_id=doctor_phone,
+        patient_id=patient_phone,
+        reason=reason
+    )
+
+    db.session.add(new_report)
+    db.session.commit()
+
+    flash("Report submitted successfully!")
+    return redirect(request.referrer)
 
 
+@routes.route("/doctor/<int:id>")
+def drprofile(id):  
+    doctor = Doctor.query.get_or_404(id)
+    avg_rating = db.session.query(func.avg(Rating.star))\
+        .filter(Rating.doctor_phone == doctor.phone).scalar()
+    avg_rating = round(avg_rating, 1) if avg_rating else 0
 
-
-
-
-# @routes.route('/logout')
-# def logout():
-#     session.clear()
-#     return redirect(url_for('routes.doctorlogin'))
+    return render_template("doctor_patient.html",
+                           doctor=doctor,
+                           avg_rating=avg_rating)

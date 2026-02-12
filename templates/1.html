@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Personal Information</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Reusing your exact color palette and design tokens */
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .form-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            animation: formEnter 0.5s ease-out forwards;
+        }
+
+        h2 {
+            margin: 0 0 5px 0;
+            color: #1a365d;
+            text-align: center;
+            font-size: 26px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .section h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #718096;
+            letter-spacing: 1.5px;
+            margin: 25px 0 15px 0;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px 15px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            font-size: 15px;
+            background: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+            resize: none; /* Prevents textarea resizing */
+        }
+
+        label {
+            position: absolute;
+            top: 14px;
+            left: 15px;
+            color: #a0aec0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+        }
+
+        /* Float Label Logic */
+        input:focus + label,
+        input.not-empty + label,
+        textarea:focus + label,
+        textarea.not-empty + label {
+            top: -12px;
+            left: 10px;
+            font-size: 12px;
+            color: #3182ce;
+            background: #fff;
+            padding: 0 8px;
+            font-weight: 700;
+            z-index: 10;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #3182ce;
+            box-shadow: 0 0 0 4px rgba(49, 130, 206, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #2b6cb0;
+        }
+
+        /* Animations from your original code */
+        @keyframes formEnter {
+            0% { transform: scale(1.8) translateY(-30px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .zoom-submit {
+            animation: formExit 0.45s ease-in forwards;
+        }
+
+        @keyframes formExit {
+            0% { transform: scale(1) translateY(0); opacity: 1; }
+            100% { transform: scale(1.8) translateY(-30px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<form class="form-card" id="editProfileForm" action="#" method="POST">
+    <h2>Edit Personal Information</h2>
+    <p class="subtitle">Update your professional profile details below.</p>
+
+    <div class="section">
+        <h3>Profile Details</h3> 
+
+        <div class="form-group">
+            <input type="text" name="full_name" id="full_name" required>
+            <label for="full_name">Full Name</label>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="speciality" id="speciality" required>
+            <label for="speciality">Speciality (e.g. Cardiology)</label>
+        </div>
+
+        <div class="form-group">
+            <textarea name="bio" id="bio" rows="4" required></textarea>
+            <label for="bio">Professional Bio</label>
+        </div>
+    </div>
+
+    <button type="submit">Update Information</button>
+</form>
+
+<script>
+    const form = document.getElementById('editProfileForm');
+    const inputs = document.querySelectorAll('input, textarea');
+
+    // Float label logic
+    inputs.forEach(input => {
+        // Check on load (if values exist)
+        if (input.value !== '') input.classList.add('not-empty');
+
+        input.addEventListener('input', () => {
+            input.value !== '' ? input.classList.add('not-empty') : input.classList.remove('not-empty');
+        });
+    });
+
+    // Handle Animation on Submit
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); 
+        this.classList.add('zoom-submit');
+        
+        // Simulate redirect or server process after animation
+        setTimeout(() => {
+            alert("Information Updated Successfully!");
+            // this.submit(); // Uncomment to actually submit to your Flask route
+        }, 450);
+    });
+</script>
+
+</body>
+</html>
