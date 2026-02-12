@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doctor Registration Form</title>
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='personal1.css') }}"> -->
+  <link rel="stylesheet" href="../static/doctorregistration.css">
+</head>
+<body>
+
+  <form class="form-card" id="doctorRegistrationForm" method="POST"
+      action="{{ url_for('routes.doctorregistration') }}" novalidate>
+
+
+    <h2>Doctor Registration</h2>
+
+    <div class="section">
+      <h3>Personal Details</h3>
+      <div class="form-group">
+        <input type="text" name="fullname" id="fullname" required />
+        <label for="fullname">Full Name*</label>
+        <small class="error">Name should only contain letters</small>
+      </div>
+
+      <div class="form-group">
+        <input type="email" name="email" id="email" required />
+        <label for="email">Email Address*</label>
+        <small class="error">Enter a valid email (e.g. name@mail.com)</small>
+      </div>
+    </div>
+
+
+<!-- 
+    <div class="section">
+      <h3>Personal Information</h3> -->
+      
+      <div class="form-group">
+        <input type="tel" name="phone" id="phone" required />
+        <label for="phone">Phone Number*</label>
+        <small class="error">Enter a valid phone number</small>
+      </div>
+
+      <div class="form-group">
+        <input type="date" name="dob" id="dob" required />
+        <label for="dob" class="date-label">Date of Birth*</label>
+        <small class="error">Date of birth is required</small>
+      </div>
+
+
+      <div class="form-group">
+  <textarea name="about" id="about" rows="3"></textarea>
+  <label for="about">About Yourself (Optional)</label>
+</div>
+
+          <div class="section">
+      <h3>Education</h3>
+      
+      <div class="form-group">
+        <select name="education" id="education" required>
+          <option value="disabled selected" ></option>
+          <option value="MBBS">MBBS</option>
+          <option value="postgraduate">Postgraduate</option>
+          <option value="postgraduate">HA</option>
+        </select>
+        <label for="education">Highest Education*</label>
+        <small class="error">Please select your education</small>
+      </div>
+
+      <div class="form-group" id="spec-group" style="display: none;">
+        <input type="text" name="specialization" id="specialization" />
+        <label for="specialization">Specialization (e.g. Cardiology)*</label>
+        <small class="error">Specialization is required for Postgraduates</small>
+      </div>
+
+      <div class="form-group">
+        <input type="number" name="experience" id="experience" min="0" required />
+        <label for="experience">Work Experience (Years)*</label>
+        <small class="error">Enter years of experience</small>
+      </div>
+
+
+      <!-- <div class="form-group">
+        <input type="number" name="experience" id="experience" min="0" required />
+        <label for="experience">NMC License Number *</label>
+        <small class="error">Enter years of experience</small>
+      </div>
+    </div> -->
+
+
+
+    <div class="section">
+      <h3>Address </h3> 
+
+      <div class="form-group">
+        <input type="text" name="address" id="address" required />
+        <label for="address">Residential Address*</label>
+        <small class="error">Address is required</small>
+      </div>
+    </div>
+
+   <button type="submit" style="text-decoration: none; color: white;">
+  Submit Personal Details
+</button>
+  </form>
+
+<script>
+const form = document.getElementById('doctorRegistrationForm');
+const eduSelect = document.getElementById('education');
+const specGroup = document.getElementById('spec-group');
+const specInput = document.getElementById('specialization');
+
+// Show/hide specialization
+eduSelect.addEventListener('change', function() {
+    if (this.value === 'postgraduate') {
+        specGroup.style.display = 'block';
+        specInput.setAttribute('required', 'true');
+    } else {
+        specGroup.style.display = 'none';
+        specInput.removeAttribute('required');
+        specInput.value = '';
+        specInput.classList.remove('not-empty');
+    }
+    this.classList.add('not-empty');
+});
+
+// Handle floating labels
+const inputs = document.querySelectorAll('input, select, textarea');
+inputs.forEach(input => {
+    input.addEventListener('input', () => {
+        if (input.value !== '') input.classList.add('not-empty');
+        else input.classList.remove('not-empty');
+    });
+});
+
+// Validation & submission
+form.addEventListener('submit', (e) => {
+    let isFormValid = true;
+
+    const patterns = {
+        fullname: /^[a-zA-Z\s]{2,50}$/,
+        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        phone: /^[0-9\+\-\s]{7,15}$/
+    };
+
+    inputs.forEach(input => {
+        if (input.id === 'about') return; // optional
+        if (input.parentElement.style.display === 'none') return; // hidden
+
+        const errorMsg = input.parentElement.querySelector('.error');
+        let isValid = true;
+        let message = "This field is required";
+
+        if (!input.value || !input.value.trim()) isValid = false;
+        else if (input.name === 'fullname' && !patterns.fullname.test(input.value)) {
+            isValid = false;
+            message = "Letters only (no numbers)";
+        }
+        else if (input.type === 'email' && !patterns.email.test(input.value)) {
+            isValid = false;
+            message = "Enter a valid email address";
+        }
+        else if (input.name === 'phone' && !patterns.phone.test(input.value)) {
+            isValid = false;
+            message = "Enter a valid phone number";
+        }
+
+        if (!isValid) {
+            isFormValid = false;
+            input.classList.add('invalid');
+            if (errorMsg) {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+            }
+        } else {
+            input.classList.remove('invalid');
+            if (errorMsg) errorMsg.style.display = 'none';
+        }
+    });
+
+    if (!isFormValid) {
+        e.preventDefault(); // stop submission if invalid
+    }
+    // If valid, form submits naturally to Flask
+});
+</script>
+</body>
+</html>

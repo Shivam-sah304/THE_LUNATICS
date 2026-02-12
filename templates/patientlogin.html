@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/patient_login.css">
+</head>
+<body>
+
+<form class="form-card" id="patientLoginForm" action="/patientlogin" method="POST" novalidate>
+    <h2>Patient Login</h2>
+
+    <div class="message-container">
+        <p class="status-message">{{ message }}</p>
+    </div>
+
+    <div class="section">
+        <div class="form-group">
+            <input type="tel" name="phone" id="phone" required>
+            <label for="phone">Phone Number*</label>
+            <small class="error">Valid phone number is required</small>
+        </div>
+
+        <div class="form-group">
+            <input type="password" name="password" id="password" required>
+            <label for="password">Password*</label>
+            <small class="error">Password is required</small>
+        </div>
+    </div>
+
+    <button type="submit">Login</button>
+
+    <div class="subtitle" style="margin-top: 20px;">
+        Don't have an account? <a href="{{ url_for('routes.patient_register') }}" style="color: #3182ce; text-decoration: none; font-weight: bold;">Register here</a>
+    </div>
+</form>
+
+<script>
+    const form = document.getElementById('patientLoginForm');
+    const inputs = document.querySelectorAll('input');
+    const phoneInput = document.getElementById('phone');
+
+    // 1. Phone Restriction: Numbers only
+    phoneInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9+]/g, '');
+    });
+
+    // 2. Float Label Logic
+    inputs.forEach((input) => {
+        // Handle potential browser autofill
+        if (input.value !== '') input.classList.add('not-empty');
+
+        input.addEventListener('input', () => {
+            input.value !== '' ? input.classList.add('not-empty') : input.classList.remove('not-empty');
+        });
+    });
+
+    // 3. Authorization & Zoom Animation Logic
+    form.addEventListener('submit', (e) => {
+        let isFormValid = true;
+
+        inputs.forEach((input) => {
+            const errorMsg = input.parentElement.querySelector('.error');
+            
+            if (!input.value.trim()) {
+                isFormValid = false;
+                input.classList.add('invalid');
+                if (errorMsg) errorMsg.style.display = 'block';
+            } else {
+                input.classList.remove('invalid');
+                if (errorMsg) errorMsg.style.display = 'none';
+            }
+        });
+
+        if (!isFormValid) {
+            e.preventDefault();
+        } else {
+            e.preventDefault();
+            // Start the cinematic zoom forward
+            form.classList.add('zoom-submit');
+            setTimeout(() => {
+                form.submit();
+            }, 450);
+        }
+    });
+</script>
+</body>
+</html>
