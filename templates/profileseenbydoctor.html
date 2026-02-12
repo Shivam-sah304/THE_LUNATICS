@@ -18,27 +18,27 @@
               <span></span><span></span><span></span>
           </div>
 
-          <!--  -->
           <div class="dropdown-content" id="dropMenu">
-   <button type="button" onclick="toggleSubMenu(event)">
-    <i class="fas fa-user-edit"></i> Edit Profile
-</button>
+            <button type="button" onclick="toggleSubMenu(event)">
+                <i class="fas fa-user-edit"></i> Edit Profile
+            </button>
 
-    <div class="sub-menu" id="editSubMenu">
-        <button onclick="location.href='/edit_profile'">
-            <i class="fas fa-id-card"></i> Edit Personal Detail
-        </button>
-        <button onclick="location.href='/change_password'">
-            <i class="fas fa-lock"></i> Change Password
-        </button>
-        <button onclick="location.href='/delete_account'">
-            <i class="fas fa-trash"></i> Delete Account
-        </button>
-    </div>
-</div>
+            <div class="sub-menu" id="editSubMenu">
+                <button onclick="location.href='/edit_profile'">
+                    <i class="fas fa-id-card"></i> Edit Personal Detail
+                </button>
+                <button onclick="location.href='/change_password'">
+                    <i class="fas fa-lock"></i> Change Password
+                </button>
+                <button onclick="location.href='/delete_account'">
+                    <i class="fas fa-trash"></i> Delete Account
+                </button>
+            </div>
 
-
-          <!--  -->
+            <button type="button" onclick="showLogoutPopup()" style="color: #e53e3e; border-top: 1px solid #eee;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
       </div>
 
 
@@ -61,22 +61,6 @@
 
     <p class="doctor-specialty">{{ doctor.specialty }}</p>
 </div>
-
-      <!-- from this form action the rating is submitted, after youb store the resilt in variable redirect it back to its route-->
-      <!-- <div id="reportInline" class="expand-section">
-          <form action="/submit_report" method="POST">
-              <h4>Report Doctor</h4>
-              <input type="hidden" name="doctor_id" value="{{ doctor.id }}">
-              <textarea name="report_text" placeholder="Reason for reporting..." required></textarea>
-              <button type="submit" class="submit-btn report-red">Submit Report</button>
-          </form>
-      </div> -->
-
-
-
-<!-- from this form action the rating is submitted, after youb store the resilt in variable redirect it back to its route-->
-
-
 
 <div id="ratingInline" class="expand-section">
           <form action="/submit_rating" method="POST">
@@ -117,54 +101,70 @@
 
   </main>
 
+  <div id="logoutPopup" class="popup-overlay">
+      <div class="popup-content">
+          <h3>Confirm Logout</h3>
+          <p>Do you really want to logout?</p>
+          <div class="popup-buttons">
+              <button type="button" class="btn-no" onclick="closeLogoutPopup()">No</button>
+              <form action="/logout" method="POST" style="display: inline;">
+                  <button type="submit" class="btn-yes">Yes, Logout</button>
+              </form>
+          </div>
+      </div>
+  </div>
+
   <script>
     const menuBtn = document.getElementById('menuBtn');
     const dropMenu = document.getElementById('dropMenu');
     const starInput = document.getElementById('starInput');
+    const logoutPopup = document.getElementById('logoutPopup');
 
     // Toggle Dropdown
     menuBtn.onclick = (e) => {
         e.stopPropagation();
         dropMenu.classList.toggle('active');
     };
-    ///////////////
-function toggleSubMenu(event) {
-    if (event) event.stopPropagation(); // This prevents the window.onclick from firing
-    const subMenu = document.getElementById("editSubMenu");
-    subMenu.classList.toggle("active");
-}
 
-      //////////////////
-
-    // Show Inline Form
-    function showInline(id) {
-        dropMenu.classList.remove('active');
-        document.querySelectorAll('.expand-section').forEach(section => {
-            if(section.id !== id) section.classList.remove('active');
-        });
-        document.getElementById(id).classList.toggle('active');
+    function toggleSubMenu(event) {
+        if (event) event.stopPropagation();
+        const subMenu = document.getElementById("editSubMenu");
+        subMenu.classList.toggle("active");
     }
 
-    // Star Interaction - Now updates the hidden form field
+    // Popup Logic
+    function showLogoutPopup() {
+        dropMenu.classList.remove('active');
+        logoutPopup.classList.add('show');
+    }
+
+    function closeLogoutPopup() {
+        logoutPopup.classList.remove('show');
+    }
+
+    // Star Interaction
     const stars = document.querySelectorAll('#starContainer i');
     stars.forEach(star => {
         star.onclick = () => {
             const val = star.getAttribute('data-v');
-            starInput.value = val; // Set the value in the hidden HTML input
+            starInput.value = val;
             stars.forEach(s => {
                 s.classList.toggle('gold', s.getAttribute('data-v') <= val);
             });
         };
     });
 
-    // Outside click closes menu
-   window.onclick = function(event) {
-    // Only close if the user clicks completely outside the menu container
-    if (!event.target.closest('.menu-container')) {
-        dropMenu.classList.remove('active');
-        document.getElementById("editSubMenu").classList.remove("active");
-    }
-};
+    // Outside click closes menu and popup
+    window.onclick = function(event) {
+        if (event.target === logoutPopup) {
+            closeLogoutPopup();
+        }
+        if (!event.target.closest('.menu-container')) {
+            dropMenu.classList.remove('active');
+            const subMenu = document.getElementById("editSubMenu");
+            if(subMenu) subMenu.classList.remove("active");
+        }
+    };
   </script>
 
 </body>
