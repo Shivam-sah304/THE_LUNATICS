@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Profile | Edit Settings</title>
+    <link rel="stylesheet" href="..\static\editprofile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <form class="form-card" id="profileForm" novalidate>
+        <h2>Edit Profile</h2>
+        <p class="subtitle">Update your professional information. Fields are optional.</p>
+
+        <div class="section">
+            <h3>Personal Information</h3>
+
+            <div class="form-group">
+                <input type="text" name="display_name" id="display_name">
+                <label for="display_name">Full Name</label>
+                <i class="fas fa-user-md toggle-password"></i>
+            </div>
+
+            <!-- <div class="form-group">
+                <input type="file" name="profile_photo" id="profile_photo" accept="image/*" style="padding-top: 18px;">
+                <label for="profile_photo" style="top: -12px; left: 10px; font-size: 12px; color: #3182ce; background: #fff; padding: 0 8px; font-weight: 700;">Profile Photo</label>
+                <i class="fas fa-camera toggle-password"></i>
+            </div> -->
+
+            <div class="form-group">
+                <input type="text" name="bio" id="bio">
+                <label for="bio">Bio / Specialization</label>
+                <i class="fas fa- briefcase toggle-password"></i>
+            </div>
+            
+        </div>
+
+        <button type="submit" id="saveBtn">Save Changes</button>
+        
+        <div class="subtitle" style="margin-top: 20px;">
+            <a href="/dashboard" style="color: #718096; text-decoration: none;">Cancel and return to Dashboard</a>
+        </div>
+    </form>
+
+    <script>
+        const form = document.getElementById('profileForm');
+        const inputs = document.querySelectorAll('input');
+
+        // Handle Label Floating for text inputs
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                if(input.type !== 'file') {
+                    input.value !== '' ? input.classList.add('not-empty') : input.classList.remove('not-empty');
+                }
+            });
+        });
+
+        // Form Submission Logic
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Add the "zoom out" animation from your CSS
+            form.classList.add('zoom-submit');
+
+            setTimeout(() => {
+                alert('Profile updated successfully!');
+                // Redirect logic here
+                // window.location.href = "dashboard.html";
+            }, 450);
+        });
+    </script>
+</body>
+</html>
