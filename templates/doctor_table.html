@@ -28,7 +28,7 @@
                     <td>{{ doctor.phone }}</td>
                     <td>
                         <div class="profile-wrapper">
-    <a href="{{ url_for('routes.profileseenbydoctor', phone=doctor.phone) }}">Visit Profile</a>
+    <a href="{{ url_for('routes.doctor_patient', phone=doctor.phone) }}">Visit Profile</a>
 
     <div class="hover-preview">
         {% if doctor.photo %}

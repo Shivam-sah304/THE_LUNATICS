@@ -17,7 +17,7 @@ class Doctor(db.Model):
     password=db.Column(db.String(200),nullable=False)
     photo=db.Column(db.String(40),nullable=True)
     nmc_number=db.Column(db.String(50),nullable=True)
-    # rating = db.Column(db.Integer, default=0)
+    rating = db.Column(db.Integer, default=0)
     # nmc_photo=db.Column(db.String(100),nullable=True)
 
 class Patient(db.Model):
