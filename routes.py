@@ -283,7 +283,7 @@ def user_login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "user_phone" not in session:
-            return redirect(url_for("routes.doctorvalidation"))  # redirect to login if not logged in
+            return redirect(url_for("routes.patientlogin"))  # redirect to login if not logged in
         return f(*args, **kwargs)
     return decorated_function
 
@@ -311,7 +311,7 @@ def doctor_table():
 
 
 
-@routes.route("/doctor_patient")
+@routes.route("/doctor_patient/<phone>")
 @user_login_required
 def doctor_patient(phone):
     print(phone)
@@ -320,13 +320,14 @@ def doctor_patient(phone):
     "photo": "uploads/abc.jpg",
     "name": "Dr. Rajan",
     "status": 1,
+
     "id": 123,
     "rating": 4,
     "specialty": "Cardiology",
     "about": "Experienced cardiologist ...",
     "facebook": "https://facebook.com/rajan",
     "whatsapp": "919876543210"
-}
+    }
 
     print(phone)  # works because phone is PK
     return render_template("doctor_patient.html", doctor=doctor) 
