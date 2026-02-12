@@ -683,13 +683,22 @@ def doctor_table():
 @routes.route("/doctor_patient/<phone>")
 # @user_login_required
 def doctor_patient(phone):
-    print(phone)
+
     doctor = Doctor.query.get_or_404(phone)
-    print(phone)  # works because phone is PK
+    doctor_phone = phone
+    user_phone = session.get('user_phone')
+
     return render_template("doctor_patient.html", doctor=doctor) 
     
-
-
+@routes.route('/final/<phone>')
+@user_login_required
+def final(phone):
+    print(phone)
+    data = {
+        "my_id": session.get('user_phone'),
+        "target_id": phone
+    }
+    return render_template('final.html', data = data)
 
 
 

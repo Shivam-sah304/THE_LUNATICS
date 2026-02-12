@@ -34,7 +34,7 @@
 
     <div class="name-header">
         <h1 class="doctor-name">{{ doctor.name }}</h1>
-        <a href="{{url_for('routes.doctor_patient', phone=doctor.phone)}}" class="message-btn" title="Message Doctor">
+        <a href="{{url_for('routes.final', phone=doctor.phone)}}" class="message-btn" title="Message Doctor">
             <i class="fas fa-comment-dots"></i>
         </a>
     </div>
