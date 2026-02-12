@@ -616,7 +616,7 @@ def patient_password():
         # Clear session
         session.pop("patient_id", None)
 
-        return redirect(url_for("routes.home"))
+        return redirect(url_for("routes.patientlogin"))
 
     return render_template("patient_password.html")
 

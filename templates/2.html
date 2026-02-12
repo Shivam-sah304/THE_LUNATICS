@@ -16,7 +16,6 @@
             --bubble-own: #0084ff;
             --bubble-them: #e4e6eb;
             --border: #dee2e6;
-            --danger: #ff4444;
         }
 
         body {
@@ -99,6 +98,7 @@
             word-wrap: break-word;
         }
 
+        /* Messenger Bubble Styles */
         #chat li.own-msg {
             align-self: flex-end;
             background: var(--bubble-own);
@@ -111,26 +111,18 @@
             color: var(--text-main);
         }
 
-        /* Video Call Section */
+        /* Video Call Section - Per User Request: Button styles remain logic-focused */
         .call-area {
-            padding: 15px;
-            background: #1a1a1a;
+            padding: 10px;
+            background: #000;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
+            justify-content: center;
+            gap: 10px;
         }
         
-        .video-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
         video {
             background: #242526;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         /* Input Area */
@@ -161,59 +153,26 @@
             font-size: 1.2rem;
             cursor: pointer;
             padding: 5px;
-            transition: transform 0.1s;
-        }
-
-        .icon-btn:active { transform: scale(0.9); }
-
-        .end-call-btn {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .file-grid {
             display: flex;
-            gap: 25px;
-            margin-top: 20px;
-            padding-top: 15px;
+            gap: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
             border-top: 1px dashed var(--border);
-            justify-content: flex-start;
         }
 
         .file-grid input { display: none; }
         
         .file-label {
-            font-size: 0.7rem;
-            font-weight: 600;
+            font-size: 0.8rem;
             cursor: pointer;
             color: #65676b;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px; /* Prevents icon and text collision */
-            transition: color 0.2s;
-            width: 50px;
-            white-space: nowrap;
         }
-
-        .file-label:hover {
-            color: var(--primary);
-        }
-
-        /* Colourful Icons */
-        .icon-image { color: #45bd62; }
-        .icon-video { color: #f3425f; }
-        .icon-pdf { color: #f02849; }
-        .icon-camera { color: #1877f2; }
-
     </style>
 </head>
 <body>
@@ -221,71 +180,58 @@
 <div class="messenger-app">
     <div class="sidebar">
         <div class="sidebar-header">
-            <h2 style="margin-top:0">Chats</h2>
+            <h2>Chats</h2>
             <div class="profile-card">
-                <small style="color:#65676b">Connected as:</small><br>
+                <small>Connected as:</small><br>
                 <strong><span id="myIdDisplay">...</span></strong>
             </div>
             <div class="profile-card">
-                <small style="color:#65676b">Chatting with:</small><br>
+                <small>Chatting with:</small><br>
                 <strong><span id="targetIdDisplay">...</span></strong>
             </div>
         </div>
         <div style="padding: 20px;">
-            <p style="color: #65676b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Tools</p>
-            <button id="recordBtn" class="icon-btn" style="font-size: 0.9rem; border: 1px solid var(--border); border-radius: 8px; padding: 10px; width: 100%; margin-bottom: 10px; background: white; text-align: left;">
-                <i class="fas fa-microphone" style="margin-right:8px"></i> Start Recording
-            </button>
-            <button id="sendVoiceBtn" onclick="sendVoice()" disabled class="icon-btn" style="font-size: 0.9rem; border: 1px solid var(--border); border-radius: 8px; padding: 10px; width: 100%; background: white; text-align: left;">
-                <i class="fas fa-paper-plane" style="margin-right:8px"></i> Send Voice
-            </button>
+            <p style="color: #65676b; font-size: 0.9rem;">Recent Media & Tools</p>
+            <button id="recordBtn" class="icon-btn" style="font-size: 1rem; border: 1px solid; border-radius: 5px; padding: 5px 10px; width: 100%; margin-bottom: 5px;">Start Recording</button>
+            <button id="sendVoiceBtn" onclick="sendVoice()" disabled class="icon-btn" style="font-size: 1rem; border: 1px solid; border-radius: 5px; padding: 5px 10px; width: 100%;">Send Voice</button>
         </div>
     </div>
 
     <div class="chat-window">
         <div class="chat-header">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div style="width:40px; height:40px; background: linear-gradient(45deg, #0084ff, #00c6ff); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                    <i class="fas fa-user"></i>
-                </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:40px; height:40px; background:#ccc; border-radius:50%;"></div>
                 <strong>Direct Message</strong>
             </div>
-            <button onclick="startCall()" class="icon-btn" style="font-size: 1.4rem;"><i class="fas fa-video"></i></button>
+            <button onclick="startCall()" class="icon-btn" style="font-size: 1.5rem;"><i class="fas fa-video"></i></button>
         </div>
 
-        <ul id="chat"></ul>
+        <ul id="chat">
+            </ul>
 
         <div class="call-area" id="callArea" style="display:none;">
-            <div class="video-container">
-                <video id="localVideo" autoplay muted playsinline width="160"></video>
-                <video id="remoteVideo" autoplay playsinline width="320"></video>
-            </div>
-            <button class="end-call-btn" onclick="endCall()">
-                <i class="fas fa-phone-slash"></i> End Call
-            </button>
+            <video id="localVideo" autoplay muted playsinline width="150"></video>
+            <video id="remoteVideo" autoplay playsinline width="300"></video>
         </div>
 
         <div class="input-area">
             <div class="input-row">
-                <button class="icon-btn icon-camera" onclick="takePhoto()"><i class="fas fa-camera"></i></button>
+                <button class="icon-btn" onclick="takePhoto()"><i class="fas fa-camera"></i></button>
                 <input id="msgInput" type="text" placeholder="Aa" onkeypress="if(event.key==='Enter') sendText()">
                 <button class="icon-btn" onclick="sendText()"><i class="fas fa-paper-plane"></i></button>
             </div>
             
             <div class="file-grid">
                 <label class="file-label">
-                    <i class="fas fa-image fa-2x icon-image"></i>
-                    <span>Image</span>
+                    <i class="fas fa-image fa-lg"></i> Image
                     <input id="imgInput" type="file" accept="image/*" onchange="sendFile('imgInput','image')">
                 </label>
                 <label class="file-label">
-                    <i class="fas fa-file-video fa-2x icon-video"></i>
-                    <span>Video</span>
+                    <i class="fas fa-file-video fa-lg"></i> Video
                     <input id="videoInput" type="file" accept="video/*" onchange="sendFile('videoInput','video')">
                 </label>
                 <label class="file-label">
-                    <i class="fas fa-file-pdf fa-2x icon-pdf"></i>
-                    <span>PDF</span>
+                    <i class="fas fa-file-pdf fa-lg"></i> PDF
                     <input id="pdfInput" type="file" accept="application/pdf" onchange="sendFile('pdfInput','PDF')">
                 </label>
                 <video id="cameraPreview" width="100" autoplay style="display:none; border-radius:5px;"></video>
@@ -295,7 +241,9 @@
 </div>
 
 <script>
-// Logic remains unchanged as per requirements
+/* ============================= */
+/* CONFIGURATION (KEPT AS IS)    */
+/* ============================= */
 const MY_ID = "samir";
 let TARGET_ID = "sishir"; 
 
@@ -307,19 +255,27 @@ let mediaRecorder, audioChunks = [];
 let pc, localStream;
 const config = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
+/* ============================= */
+/* CONNECTION & RECEIVER         */
+/* ============================= */
 ws.onopen = () => ws.send(JSON.stringify({ type: "auth", user_id: MY_ID }));
 
 ws.onmessage = async (event) => {
     if (typeof event.data === "string") {
         let msg;
         try { msg = JSON.parse(event.data); } 
-        catch { return; }
+        catch {
+            appendMessage("them-msg", "Plain: " + event.data);
+            return;
+        }
 
         if (msg.type === "message") {
             appendMessage("them-msg", `<strong>${msg.from}:</strong> ${msg.message}`);
         }
         else if (msg.type === "offer") {
             appendMessage("them-msg", "<i>Incoming call...</i>");
+            TARGET_ID = msg.from;
+            document.getElementById("targetIdDisplay").textContent = TARGET_ID;
             document.getElementById("callArea").style.display = "flex";
             await createPeer();
             await pc.setRemoteDescription(msg.offer);
@@ -328,13 +284,15 @@ ws.onmessage = async (event) => {
             ws.send(JSON.stringify({ type: "answer", from: MY_ID, to: TARGET_ID, answer: answer }));
         }
         else if (msg.type === "answer") { await pc.setRemoteDescription(msg.answer); }
-        else if (msg.type === "ice") { if(pc) await pc.addIceCandidate(msg.candidate); }
-        else if (msg.type === "hangup") { handleHangup(); }
+        else if (msg.type === "ice") { await pc.addIceCandidate(msg.candidate); }
     } else {
         handleBinary(event.data);
     }
 };
 
+/* ============================= */
+/* UI HELPERS                    */
+/* ============================= */
 function appendMessage(className, htmlContent) {
     const li = document.createElement("li");
     li.className = className;
@@ -345,6 +303,9 @@ function appendMessage(className, htmlContent) {
     return li;
 }
 
+/* ============================= */
+/* SENDING LOGIC (KEPT AS IS)    */
+/* ============================= */
 function sendText(){
     const input = document.getElementById("msgInput");
     const val = input.value.trim();
@@ -379,11 +340,15 @@ function sendFile(id, label){
     fileInput.value="";
 }
 
+/* ============================= */
+/* BINARY HANDLER (KEPT AS IS)   */
+/* ============================= */
 async function handleBinary(data) {
     const arrayBuffer = await data.arrayBuffer();
     const uint8 = new Uint8Array(arrayBuffer);
     let mimeType = "application/octet-stream";
     
+    // Simple magic byte detection
     if (uint8[0] === 0x25 && uint8[1] === 0x50) mimeType = "application/pdf";
     else if (uint8[0] === 0x89) mimeType = "image/png";
     else if (uint8[0] === 0xFF) mimeType = "image/jpeg";
@@ -397,68 +362,30 @@ async function handleBinary(data) {
         const img = document.createElement("img"); img.src = url; img.style.maxWidth = "100%"; li.appendChild(img);
     } else if (mimeType.startsWith("video")) {
         const v = document.createElement("video"); v.src = url; v.controls = true; v.style.maxWidth = "100%"; li.appendChild(v);
+    } else if (mimeType.startsWith("audio")) {
+        const a = document.createElement("audio"); a.src = url; a.controls = true; li.appendChild(a);
     } else {
         const a = document.createElement("a"); a.href = url; a.textContent = "Open File"; li.appendChild(a);
     }
 }
 
-// --- CALL LOGIC ---
-async function startCall(){
-    document.getElementById("callArea").style.display = "flex";
-    localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
-    document.getElementById("localVideo").srcObject = localStream;
-    await createPeer();
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    ws.send(JSON.stringify({ type:"offer", from: MY_ID, to: TARGET_ID, offer:offer }));
-}
-
-function endCall() {
-    ws.send(JSON.stringify({ type: "hangup", to: TARGET_ID }));
-    handleHangup();
-}
-
-function handleHangup() {
-    if (pc) {
-        pc.close();
-        pc = null;
-    }
-    if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-        localStream = null;
-    }
-    document.getElementById("callArea").style.display = "none";
-    document.getElementById("localVideo").srcObject = null;
-    document.getElementById("remoteVideo").srcObject = null;
-    appendMessage("them-msg", "<i>Call ended.</i>");
-}
-
-async function createPeer(){
-    pc = new RTCPeerConnection(config);
-    pc.onicecandidate = e => {
-        if(e.candidate) ws.send(JSON.stringify({ type:"ice", from: MY_ID, to: TARGET_ID, candidate:e.candidate }));
-    };
-    pc.ontrack = e => { 
-        document.getElementById("remoteVideo").srcObject = e.streams[0]; 
-    };
-    if(localStream) localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-}
-
-// --- TOOLS ---
+/* ============================= */
+/* VOICE / CAMERA / WEBRTC       */
+/* ============================= */
 const recordBtn=document.getElementById("recordBtn");
 recordBtn.onclick=async()=>{
-    if(recordBtn.textContent.includes("Start")){
+    if(recordBtn.textContent==="Start Recording"){
         audioChunks=[];
         const stream=await navigator.mediaDevices.getUserMedia({audio:true});
         mediaRecorder=new MediaRecorder(stream);
         mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
         mediaRecorder.start();
-        recordBtn.innerHTML='<i class="fas fa-stop"></i> Stop Recording';
+        recordBtn.textContent="Stop Recording";
         recordBtn.style.color="red";
     } else {
         mediaRecorder.stop();
         mediaRecorder.onstop=()=>{
-            recordBtn.innerHTML='<i class="fas fa-microphone"></i> Start Recording';
+            recordBtn.textContent="Start Recording";
             recordBtn.style.color="";
             document.getElementById("sendVoiceBtn").disabled=false;
         };
@@ -496,6 +423,25 @@ async function takePhoto(){
     stream.getTracks().forEach(t=>t.stop());
     video.style.display="none";
     appendMessage("own-msg", "Sent a photo.");
+}
+
+async function createPeer(){
+    pc=new RTCPeerConnection(config);
+    pc.onicecandidate=e=>{
+        if(e.candidate) ws.send(JSON.stringify({ type:"ice", from: MY_ID, to: TARGET_ID, candidate:e.candidate }));
+    };
+    pc.ontrack=e=>{ document.getElementById("remoteVideo").srcObject=e.streams[0]; };
+    if(localStream) localStream.getTracks().forEach(track=>pc.addTrack(track,localStream));
+}
+
+async function startCall(){
+    document.getElementById("callArea").style.display = "flex";
+    localStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    document.getElementById("localVideo").srcObject=localStream;
+    await createPeer();
+    const offer=await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    ws.send(JSON.stringify({ type:"offer", from: MY_ID, to: TARGET_ID, offer:offer }));
 }
 </script>
 </body>
