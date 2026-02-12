@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Patient Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/PATIENTPROFILE.css">
+</head>
+<body>
+
+  <main class="profile-container">
+
+    <section class="profile-card">
+      
+      <div class="menu-container">
+          <div class="menu-dots" id="menuBtn">
+              <span></span><span></span><span></span>
+          </div>
+
+          <div class="dropdown-content" id="dropMenu">
+            <button type="button" onclick="toggleSubMenu(event)">
+                <i class="fas fa-user-edit"></i> Edit Profile
+            </button>
+
+            <div class="sub-menu" id="editSubMenu">
+                <button onclick="location.href='/edit_profile'">
+                    <i class="fas fa-id-card"></i> Edit Personal Detail
+                </button>
+                <button onclick="location.href='/change_password'">
+                    <i class="fas fa-lock"></i> Change Password
+                </button>
+                <button onclick="location.href='/delete_account'">
+                    <i class="fas fa-trash"></i> Delete Account
+                </button>
+            </div>
+
+            <button type="button" onclick="showLogoutPopup()" style="color: #e53e3e; border-top: 1px solid #eee;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+      </div>
+
+
+ <div class="profile-photo">
+    <div class="photo-wrapper">
+        <img src="{{ patient.photo }}" alt="Photo of {{ patient.name }}">
+        
+        {% if patient.status == 1 %}
+            <span class="status-dot"></span>
+        {% endif %}
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
+        <h1 class="doctor-name" style="margin-bottom: 0;">{{ patient.name }}</h1>
+        <button class="msg-btn" onclick="location.href='/message/{{ patient.id }}'">
+            <i class="fas fa-envelope"></i> Message
+        </button>
+    </div>
+    
+    <div class="Doctor-rating-display">
+        {% for i in range(1, 6) %}
+            <i class="fas fa-star {% if i <= patient.rating %}gold{% endif %}"></i>
+        {% endfor %}
+    </div>
+
+    <p class="doctor-specialty">{{ patient.specialty }}</p>
+</div>
+
+<div id="ratingInline" class="expand-section">
+          <form action="/submit_rating" method="POST">
+              <h4>Rate Your Experience</h4>
+              
+              <input type="hidden" name="star_rating" id="starInput" value="0">
+              <input type="hidden" name="patient_id" value="{{ patient.id }}">
+
+              <div class="star-box" id="starContainer">
+                  <i class="fas fa-star" data-v="1"></i>
+                  <i class="fas fa-star" data-v="2"></i>
+                  <i class="fas fa-star" data-v="3"></i>
+                  <i class="fas fa-star" data-v="4"></i>
+                  <i class="fas fa-star" data-v="5"></i>
+              </div>
+              
+              <p style="font-size: 11px; color: #777; margin-bottom: 5px;">Share your experience (Optional):</p>
+              <textarea name="review_text" placeholder="Tell us more about your visit..."></textarea>
+              
+              <button type="submit" class="submit-btn rating-blue">Submit Rating</button>
+          </form>
+      </div>
+
+    </section>
+
+    <section class="about-section">
+      <h2>About Me</h2>
+      <p>{{ patient.about }}</p>
+    </section>
+
+    <section class="contact-section">
+      <h2>Contact Me</h2>
+      <div class="contact-icons">
+        <a href="{{ patient.facebook }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://wa.me/{{ patient.whatsapp }}" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="logoutPopup" class="popup-overlay">
+      <div class="popup-content">
+          <h3>Confirm Logout</h3>
+          <p>Do you really want to logout?</p>
+          <div class="popup-buttons">
+              <button type="button" class="btn-no" onclick="closeLogoutPopup()">No</button>
+              <form action="/logout" method="POST" style="display: inline;">
+                  <button type="submit" class="btn-yes">Yes, Logout</button>
+              </form>
+          </div>
+      </div>
+  </div>
+
+  <script>
+    const menuBtn = document.getElementById('menuBtn');
+    const dropMenu = document.getElementById('dropMenu');
+    const starInput = document.getElementById('starInput');
+    const logoutPopup = document.getElementById('logoutPopup');
+
+    menuBtn.onclick = (e) => {
+        e.stopPropagation();
+        dropMenu.classList.toggle('active');
+    };
+
+    function toggleSubMenu(event) {
+        if (event) event.stopPropagation();
+        const subMenu = document.getElementById("editSubMenu");
+        subMenu.classList.toggle("active");
+    }
+
+    function showLogoutPopup() {
+        dropMenu.classList.remove('active');
+        logoutPopup.classList.add('show');
+    }
+
+    function closeLogoutPopup() {
+        logoutPopup.classList.remove('show');
+    }
+
+    const stars = document.querySelectorAll('#starContainer i');
+    stars.forEach(star => {
+        star.onclick = () => {
+            const val = star.getAttribute('data-v');
+            starInput.value = val;
+            stars.forEach(s => {
+                s.classList.toggle('gold', s.getAttribute('data-v') <= val);
+            });
+        };
+    });
+
+    window.onclick = function(event) {
+        if (event.target === logoutPopup) {
+            closeLogoutPopup();
+        }
+        if (!event.target.closest('.menu-container')) {
+            dropMenu.classList.remove('active');
+            const subMenu = document.getElementById("editSubMenu");
+            if(subMenu) subMenu.classList.remove("active");
+        }
+    };
+  </script>
+
+</body>
+</html>
